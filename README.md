@@ -1,2 +1,2 @@
 # backend
-pip3 install wikipedia-api
+python -m pip install wikipedia-api
