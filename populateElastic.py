@@ -65,7 +65,7 @@ mappings = {
     }
 }
 
-es.indices.create(index="wikipedia_pages", mappings=mappings)
+# es.indices.create(index="wikipedia_pages", mappings=mappings)
 # first_doc = {
 #     "title": first_topic,
 #     "full_text": conn.first_text,
