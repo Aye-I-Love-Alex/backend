@@ -4,11 +4,19 @@ from ConnectionInterface import ConnectionInterface
 class Connection(ConnectionInterface):
 
     wikipedia = wikipediaapi.Wikipedia('en')
+    
+    first_text = ''
     first_links = {}
+    
     second_links = {}
+    second_text = ''
     def __init__(self, first_topic, second_topic):
         first_page = self.wikipedia.page(first_topic)
+        self.first_text = first_page.text
+        
         second_page = self.wikipedia.page(second_topic)
+        self.second_text = second_page.text
+
         first_page_links = first_page.links
         second_page_links = second_page.links
         for key, item in first_page_links.items():
@@ -22,15 +30,15 @@ class Connection(ConnectionInterface):
                     self.first_links[key] = first_page_links[key].fullurl
         print("Success for first")
         
-        for key, item in second_page_links.items():
-            if self.wikipedia.page(key).exists():
-                try:
-                    second_page_links[key].fullurl
-                except:
-                    continue
-                else:
-                    if "Category:" not in key and "Help:" not in key and "Template talk:" not in key and "Wikipedia:" not in key and "Template:" not in key:
-                        self.second_links[key] = second_page_links[key].fullurl
+        # for key, item in second_page_links.items():
+        #     if self.wikipedia.page(key).exists():
+        #         try:
+        #             second_page_links[key].fullurl
+        #         except:
+        #             continue
+        #         else:
+        #             if "Category:" not in key and "Help:" not in key and "Template talk:" not in key and "Wikipedia:" not in key and "Template:" not in key:
+        #                 self.second_links[key] = second_page_links[key].fullurl
         print("Success for second")
         
     #BFS logic will go here
