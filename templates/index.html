@@ -16,9 +16,6 @@
             integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
             crossorigin="anonymous">
 
-        <!-- Custom styles for this template -->
-        <link href="sticky-footer-navbar.css" rel="stylesheet">
-
     </head>
 
     <body data-new-gr-c-s-check-loaded="14.1078.0" data-gr-ext-installed="">
@@ -50,23 +47,15 @@
             <p class="lead">Enter two words to find the conceptual connection
                 between them.</p>
 
-                <div class="mb-3">
-                    <label for="text">First Word<span class="text-muted"></span></label>
-                    <input type="text" class="form-control" id="firstword"
-                        placeholder="First Word">
-                    <div class="invalid-feedback">
-                        Please enter a valid word.
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="text">Second Word<span class="text-muted"></span></label>
-                    <input type="text" class="form-control" id="secondword"
-                        placeholder="Second Word">
-                    <div class="invalid-feedback">
-                        Please enter a valid word.
-                    </div>
-                </div>
-                <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="findConnection()">Submit</button>
+            <form action="/" method="post">
+                <label for="text">First Word<span class="text-muted"></span></label>
+                <input type="text" class="form-control" name="firstword" placeholder="First Word">
+                <label for="text">Second Word<span class="text-muted"></span></label>
+                <input type="text" class="form-control" name="secondword" placeholder="Second Word">
+                <input type="submit" class="btn btn-primary btn-lg btn-block" value="Submit">
+            </form>
+
+            <p>{{ connection }}</p>
 
         </main>
 
@@ -75,12 +64,6 @@
                 <span class="text-muted">© ILoveAlex2022</span>
             </div>
         </footer>
-
-        <br>
-        <p id="connection" class="container"></p>
-
-        <!-- Custom js file connection -->
-        <script src="index.js"></script>
 
         <!-- Bootstrap core JavaScript
     ================================================== -->
