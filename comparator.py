@@ -1,51 +1,44 @@
-from Connection import Connection
-from elasticsearch import Elasticsearch
+import wikipediaapi
+from flask import Flask, render_template, request
 
-# first_topic = input("First topic: ")
-# second_topic = input("Second topic: ")
-
-# conn = Connection(first_topic, second_topic)
-
-# print(conn.first_links)
-# print(conn.second_links)
-
-# print(test.hyperlinks())
-
-# print(current_page.exists())
-
-es = Elasticsearch("http://localhost:9200")
-es.info().body
-
-# mappings = {
-#     "properties": {
-#         "title": {"type": "text", "analyzer": "english"},
-#         "full_text": {"type": "text", "analyzer": "standard"},
-#         "links": {
-#             "type": "object",
-#             "properties": {
-#                 "key": {"type": "text", "index": "false"},
-#                 "value": {"type": "text", "index": "false"},
-#             }
-#         }
-#     }
-# }
-
-# es.indices.create(index="wikipedia_pages", mappings=mappings)
-
-# first_doc = {
-#     "title": first_topic,
-#     "full_text": conn.first_text,
-#     "links": conn.first_links
-# }
-# es.index(index="wikipedia_pages", document=first_doc)
+wikipedia = wikipediaapi.Wikipedia('en')
+app = Flask(__name__)
 
 
-# second_doc = {
-#     "title": first_topic,
-#     "full_text": conn.first_text,
-#     "links": conn.first_links
-# }
-# es.index(index="wikipedia_pages", document=second_doc)
+def connection(first_topic, second_topic):
+    first_page = wikipedia.page(first_topic)
+    second_page = wikipedia.page(second_topic)
 
-resp = es.search(index="wikipedia_pages", body={})
-print(resp)
+    first_links = set(first_page.links.keys())
+    second_links = set(second_page.links.keys())
+    common_links = first_links.intersection(second_links)
+
+    if second_topic in first_links:
+        common_links.add(second_topic)
+
+    if first_topic in second_links:
+        common_links.add(first_topic)
+
+    return common_links
+
+
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    if request.method == 'POST':
+        first = request.form.get('firstword')
+        second = request.form.get('secondword')
+        response = ''
+        if len(first) > 0 and len(second) > 0:
+            response = connection(first, second)
+        return render_template('index.html', connection=response)
+    else:
+        return render_template('index.html', connection='')
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
+
+
+
+
+
