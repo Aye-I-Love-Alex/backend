@@ -1,7 +1,10 @@
 name: Python package
 
-on: [push]
-
+on:
+  pull_request:
+    branches:
+      - 'main'
+      - 'dev'
 jobs:
   build:
 
@@ -27,8 +30,14 @@ jobs:
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+<<<<<<< HEAD
+      # - name: Test with pytest
+      #   run: |
+      #     pytest
+=======
       - name: Test with pytest
         run: |
           pip install pytest
           pip install pytest-cov
           pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+>>>>>>> 61c6973e2df770dede3f344eac4004cd3da01c54
