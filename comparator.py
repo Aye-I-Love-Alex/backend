@@ -47,9 +47,5 @@ es.info().body
 # }
 # es.index(index="wikipedia_pages", document=second_doc)
 
-resp =es.search(
-    index="wikipedia_pages",
-    body={}
-)
+resp = es.search(index="wikipedia_pages", body={})
 print(resp)
-
