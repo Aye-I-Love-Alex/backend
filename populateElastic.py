@@ -24,19 +24,19 @@ for topic in test_topics:
         for link in soup.find_all("a"):
             if "id" in link.attrs and "xolnki" in link.get("id"):
                 if (
-                    link.get("title") in test_topics
-                    and link.get("title") not in current_links
-                    and link.get("title") != topic
+                    link.text in test_topics
+                    and link.text not in current_links
+                    and link.text != topic
                 ):
-                    current_links.append(link.get("title"))
+                    current_links.append(link.text)
         page = {"title": topic, "full_text": text, "links": current_links}
         es.index(index="wikipedia_pages", document=page)
 
 # Sample query to return information from ElasticSearch after insertion
-resp = es.search(
-    index="wikipedia_pages", body={"query": {"match": {"title": "Charles Manson"}}}
-)
-print(resp)
+# resp = es.search(
+#     index="wikipedia_pages", body={"query": {"match": {"title": "Cincinnati Reds"}}}
+# )
+# print(resp)
 
 
 # Creating index for pages

@@ -1,7 +1,8 @@
 import wikipediaapi
+from Connection import Connection
 from flask import Flask, render_template, request
 
-wikipedia = wikipediaapi.Wikipedia('en')
+wikipedia = wikipediaapi.Wikipedia("en")
 app = Flask(__name__)
 
 
@@ -22,23 +23,20 @@ def connection(first_topic, second_topic):
     return common_links
 
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route("/", methods=["POST", "GET"])
 def index():
-    if request.method == 'POST':
-        first = request.form.get('firstword')
-        second = request.form.get('secondword')
-        response = ''
+    if request.method == "POST":
+        first = request.form.get("firstword")
+        second = request.form.get("secondword")
+        response = ""
         if len(first) > 0 and len(second) > 0:
-            response = connection(first, second)
-        return render_template('index.html', connection=response)
+            connection = Connection(first, second)
+            path = connection.find_connection()
+            print(path)
+        return render_template("index.html", connection=response)
     else:
-        return render_template('index.html', connection='')
+        return render_template("index.html", connection="")
 
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
-
-
-
