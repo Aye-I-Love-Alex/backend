@@ -54,9 +54,11 @@
                 <input type="text" class="form-control" name="secondword" placeholder="Second Word">
                 <input type="submit" class="btn btn-primary btn-lg btn-block" value="Submit">
             </form>
-
-            <p>{{ connection }}</p>
-
+            
+            {% if connection != "" %}
+                <iframe style="height: 525px; width: 525px;" src="{{ url_for('show_graph') }}"></iframe>
+            {% endif %}
+            
         </main>
 
         <footer class="footer">
