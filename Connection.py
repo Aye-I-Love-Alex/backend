@@ -1,57 +1,57 @@
 import wikipediaapi
+from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
 
 
 class Connection(ConnectionInterface):
 
     wikipedia = wikipediaapi.Wikipedia("en")
+    es = Elasticsearch("http://localhost:9200")
 
-    first_text = ""
-    first_links = {}
+    first_page = {}
+    second_page = {}
 
-    second_links = {}
-    second_text = ""
+    result_tree = {}
 
     def __init__(self, first_topic, second_topic):
-        first_page = self.wikipedia.page(first_topic)
-        self.first_text = first_page.text
+        self.first_page = self.es.search(
+            index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}}
+        )
+        self.second_page = self.es.search(
+            index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}}
+        )
 
-        second_page = self.wikipedia.page(second_topic)
-        self.second_text = second_page.text
-
-        first_page_links = first_page.links
-        second_page_links = second_page.links
-        for key, item in first_page_links.items():
-            if self.wikipedia.page(key).exists():
-                # print(first_page_links[key].fullurl)
-                try:
-                    first_page_links[key].fullurl
-                except:
-                    continue
-                else:
-                    self.first_links[key] = first_page_links[key].fullurl
-        print("Success for first")
-
-        # for key, item in second_page_links.items():
-        #     if self.wikipedia.page(key).exists():
-        #         try:
-        #             second_page_links[key].fullurl
-        #         except:
-        #             continue
-        #         else:
-        #             if "Category:" not in key and "Help:" not in key and "Template talk:" not in key and "Wikipedia:" not in key and "Template:" not in key:
-        #                 self.second_links[key] = second_page_links[key].fullurl
-        print("Success for second")
-
-    # BFS logic will go here
+    # BFS logic here for MVP
     def find_connection(self):
-        # first_links = set(first_page.links.keys())
-        # second_links = set(second_page.links.keys())
-        # common_links = first_links.intersection(second_links)
+        first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
+        first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
+        parent_queue = [first_topic] * len(first_links)
 
-        # if second_topic in first_links:
-        #     common_links.add(second_topic)
+        second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
 
-        # if first_topic in second_links:
-        #     common_links.add(first_topic)
-        return ""
+        path = []
+        seen_links = first_links.copy()
+        seen_links.append(first_topic)
+        cont = True
+        while len(first_links) != 0 and cont:
+            current_link = first_links.pop(0)
+            self.result_tree[current_link] = parent_queue.pop(0)
+            if current_link == second_topic:
+                iter_back = current_link
+                while iter_back != first_topic:
+                    path.append(iter_back)
+                    iter_back = self.result_tree[iter_back]
+                path.append(first_topic)
+                cont = False
+            else:
+                result_links = self.es.search(
+                    index="wikipedia_pages",
+                    body={"query": {"match": {"title": current_link}}},
+                )["hits"]["hits"][0]["_source"]["links"]
+                for link in result_links:
+                    if link not in seen_links:
+                        seen_links.append(link)
+                        first_links.append(link)
+                        parent_queue.append(current_link)
+        path.reverse()
+        return path
