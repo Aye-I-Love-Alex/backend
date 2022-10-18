@@ -1,53 +1,21 @@
 from mediawiki import MediaWiki
+from elasticsearch import Elasticsearch
 import time
 import re
 wikipedia = MediaWiki("https://simple.wikipedia.org/w/api.php")
 from bs4 import BeautifulSoup
 
-# test_topics = [
-#     "Cincinnati Reds",
-#     "World Series",
-#     "Ohio",
-#     "William Howard Taft",
-#     "Cincinnati",
-#     "Charles Manson",
-#     "Barack Obama",
-#     "Joe Biden",
-# ]
-
-# #Open text file with list of all simple wikipedia pages
-# with open('Simple_Wikipedia_Pages.txt', encoding='utf-8') as pages:
-#     start = time.time()
-#     pages_read = 0
-#     for line in pages:
-#         #Calls wikipedia page currently
-#         page = wikipedia.page(line.replace("_", " "))
-#         title = page.title
-#         if "\"" not in title:
-#             file = open("links/" + title.replace(" ", '_') + ".txt", "w", encoding='utf-8')
-#         links = page.links
-#         #Currently writes all links to a text file named after wikipedia page
-#         #Replace with generating an elastic object instead
-#         if not file.closed: 
-#             for link in links:
-#                 file.write(link + "\n")
-#         file.close()
-#         #Currently sleeps for .1 seconds, can likely speed up.
-#         end = time.time()
-#         pages_read += 1
-#         print("Elapsed time: " + str(end-start))
-#         print("Pages read: " + str(pages_read))
+es = Elasticsearch("http://localhost:9200")
 
 #Attempt with wikipedia data dump
-
 #Open simple wikipedia data dump
-with open('simplewiki-20221001-pages-articles-multistream.xml', encoding='utf-8') as file:
+with open('C:\\Users\\alexw\\Documents\\Senior Year\\CSE 5914\\simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') as file:
     title = ""
     links = []
     pages = {}
-    # start_time = time.time()
-    # pages_parsed = 0
-    # print("starting execution")
+    start_time = time.time()
+    pages_parsed = 0
+    print("starting execution")
     
     # Read line by line
     for line in file:
@@ -64,11 +32,14 @@ with open('simplewiki-20221001-pages-articles-multistream.xml', encoding='utf-8'
         # Check if end of page
         elif "</page>" in line:
             links = sorted(links, key=str.lower)
+
+            page = {"title": title, "links": links}
+            es.index(index="wikipedia_pages", document=page)
             pages[title] = links
             title = ""
-            links = []
+            links = []  
         # Used to track program execution time
-        # end_time = time.time()
-        # if end_time - start_time > 10.0:
-        #     print("\nPages read: " + str(pages_parsed) + "\n")
-        #     start_time = time.time()
+        end_time = time.time()
+        if end_time - start_time > 10.0:
+            print("\nPages read: " + str(pages_parsed) + "\n")
+            start_time = time.time()
