@@ -1,15 +1,13 @@
-from mediawiki import MediaWiki
 from elasticsearch import Elasticsearch
 import time
 import re
-wikipedia = MediaWiki("https://simple.wikipedia.org/w/api.php")
 from bs4 import BeautifulSoup
 
 es = Elasticsearch("http://localhost:9200")
 
 #Attempt with wikipedia data dump
 #Open simple wikipedia data dump
-with open('C:\\Users\\alexw\\Documents\\Senior Year\\CSE 5914\\simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') as file:
+with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') as file:
     title = ""
     links = []
     pages = {}

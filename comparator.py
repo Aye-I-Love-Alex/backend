@@ -1,30 +1,10 @@
-import wikipediaapi
 from Connection import Connection
 from flask import Flask, render_template, request, send_file
 import networkx as nx
 from pyvis.network import Network
 import pandas as pd
 
-wikipedia = wikipediaapi.Wikipedia("en")
 app = Flask(__name__, static_folder='graph')
-
-
-def connection(first_topic, second_topic):
-    first_page = wikipedia.page(first_topic)
-    second_page = wikipedia.page(second_topic)
-
-    first_links = set(first_page.links.keys())
-    second_links = set(second_page.links.keys())
-    common_links = first_links.intersection(second_links)
-
-    if second_topic in first_links:
-        common_links.add(second_topic)
-
-    if first_topic in second_links:
-        common_links.add(first_topic)
-
-    return common_links
-
 
 @app.route("/", methods=["POST", "GET"])
 def index():
