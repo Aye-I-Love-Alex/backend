@@ -8,6 +8,14 @@ If running for first time:
 If ElasticSearch has been run in the past:
 1. Open Docker Desktop and run container for ElasticSearch
 
-
-
+### Running the Parser
+## Requirements
+* ElasticSearch and Docker installed and functional
+* BeautifulSoup python library installed
+## Steps
+1. Download the simple wikipedia datadump [here](https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-articles-multistream.xml.bz2)
+2. Unzip the compressed datadump with a software like 7zip or winrar, will be 1 GB uncompressed
+3. Place the file in the home directory(\concept-connector)
+4. Run the following terminal command in the home directory(\concept-connector) % py WikiReader.py
+*Estimated runtime is about 1.5 hours
 
