@@ -17,17 +17,26 @@ class Connection(ConnectionInterface):
     result_tree = {}
 
     def __init__(self, first_topic, second_topic):
-        self.first_page = self.es.search(
-            index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}}
-        )
-        self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
-        self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
+        self.first_page, self.first_links, self.first_topic = self.get_page_info(first_topic)
+        self.second_page, self.second_links, self.second_topic = self.get_page_info(second_topic)
 
-        self.second_page = self.es.search(
-            index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}}
+    def get_page_info(self, topic):
+        page = self.es.search(
+            index="wikipedia_pages", body={"query": {"match": {"title": topic}}}
         )
-        self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
-        self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
+        hits = page["hits"]["hits"]
+        links = []
+        title = []
+        # if there are no hits in the database, leave arrays blank
+        if len(hits) > 0:
+            # return the info for the hit with the most outgoing links
+            max_links = 0
+            for hit in hits:
+                if max_links < len(hit["_source"]["links"]):
+                    max_links = len(hit["_source"]["links"])
+                    links = hit["_source"]["links"]
+                    title = hit["_source"]["title"]
+        return page, links, title
 
     # Generating path when BFS finds a path
     def generate_path(self, first_parents, second_parents, common):
