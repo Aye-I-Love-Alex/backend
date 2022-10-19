@@ -1,11 +1,9 @@
-import wikipediaapi
 from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
 
 
 class Connection(ConnectionInterface):
 
-    wikipedia = wikipediaapi.Wikipedia("en")
     es = Elasticsearch("http://localhost:9200")
 
     first_page = {}
