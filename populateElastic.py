@@ -5,7 +5,7 @@ import os.path
 es = Elasticsearch("http://localhost:9200")
 
 result = es.search(
-    index="wikipedia_pages", body={"query": {"match": {"title": 'reptiles'}}}
+    index="wikipedia_pages", body={"query": {"match": {"title": "ohio"}}}
 )
 print(result["hits"]["hits"][0]["_source"])
 # test_topics = [

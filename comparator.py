@@ -6,7 +6,7 @@ from pyvis.network import Network
 import pandas as pd
 
 wikipedia = wikipediaapi.Wikipedia("en")
-app = Flask(__name__, static_folder='graph')
+app = Flask(__name__, static_folder="graph")
 
 
 def connection(first_topic, second_topic):
@@ -34,23 +34,27 @@ def index():
         second = request.form.get("secondword")
         if len(first) > 0 and len(second) > 0:
             connection = Connection(first, second)
-            path = connection.find_connection()
-            if len(path) > 0:
-                source = []
-                dest = []
-                for path_index in range(len(path) - 1):
-                    source.append(path[path_index])
-                    dest.append(path[path_index + 1])
-                df = pd.DataFrame({"Source": source, "Target": dest, "Weight": [1] * len(source)})
-                graph = nx.from_pandas_edgelist(df, source="Source", target="Target", edge_attr="Weight")
-                net = Network()
-                net.from_nx(graph)
-                net.save_graph("./graph/graph.html")
+            path = connection.find_all_connections()
+            print(path)
+            # path = connection.find_connection()
+            # if len(path) > 0:
+            #     source = []
+            #     dest = []
+            #     for path_index in range(len(path) - 1):
+            #         source.append(path[path_index])
+            #         dest.append(path[path_index + 1])
+            #     df = pd.DataFrame({"Source": source, "Target": dest, "Weight": [1] * len(source)})
+            #     graph = nx.from_pandas_edgelist(df, source="Source", target="Target", edge_attr="Weight")
+            #     net = Network()
+            #     net.from_nx(graph)
+            #     net.save_graph("./graph/graph.html")
     return render_template("index.html", connection=net)
 
-@app.route('/graph/graph.html')
+
+@app.route("/graph/graph.html")
 def show_graph():
-    return send_file('./graph/graph.html')
+    return send_file("./graph/graph.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
