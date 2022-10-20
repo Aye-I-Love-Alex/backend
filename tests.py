@@ -2,10 +2,24 @@
 # pytest tests.py
 from Connection import Connection
 
-def test_find_connection_1():
-    conn = Connection('Hawaii','Barack Obama')
-    a = (conn.first_page["hits"]["hits"][0]["_source"]["links"])
-    b = conn.second_page["hits"]["hits"]
-    for thing in b:
-        print(thing["_source"]["title"] + ': ' + str(len(thing["_source"]["links"])))
-    assert False, len(b) > 0
+
+def test_init_parents_1_normal():
+    links = ['link1', 'link2', 'link3', 'link4', 'link5']
+    topic = 'topic'
+    parents = Connection.init_parents(None, links, topic)
+    expected_parents = {'link1': 'topic', 'link2': 'topic', 'link3': 'topic', 'link4': 'topic', 'link5': 'topic'}
+    print(parents)
+    assert parents == expected_parents, 'Incorrect return for dictionary of links to topics.'
+    assert links == ['link1', 'link2', 'link3', 'link4', 'link5'], 'First parameter was unintentionally altered.'
+    assert topic == 'topic', 'Second parameter was unintentionally altered.'
+
+
+def test_init_parents_2_no_links():
+    links = []
+    topic = 'topic'
+    parents = Connection.init_parents(None, links, topic)
+    expected_parents = {}
+    print(parents)
+    assert parents == expected_parents, 'Incorrect return for dictionary of links to topics.'
+    assert links == [], 'First parameter was unintentionally altered.'
+    assert topic == 'topic', 'Second parameter was unintentionally altered.'
