@@ -20,14 +20,16 @@ class Connection(ConnectionInterface):
         self.first_page = self.es.search(
             index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}}
         )
-        self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
-        self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
+        if len(self.first_page["hits"]["hits"]) > 0:
+            self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
+            self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
 
         self.second_page = self.es.search(
             index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}}
         )
-        self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
-        self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
+        if len(self.second_page["hits"]["hits"]) > 0:
+            self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
+            self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
 
     # Generating path when BFS finds a path
     def generate_path(self, first_parents, second_parents, common):
