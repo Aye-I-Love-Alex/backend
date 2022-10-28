@@ -94,7 +94,7 @@ class Connection(ConnectionInterface):
                 if current_link in second_parents:
                     # if so, generate a path and add to the list of paths for graph generation
                     paths.append(self.generate_path(first_parents, second_parents, current_link))
-                elif current_link not in first_seen_links:
+                else:
                     # if not, expand and add new links if we have not already seen them from this direction
                     result = self.es.search(
                         index="wikipedia_pages",
@@ -116,7 +116,7 @@ class Connection(ConnectionInterface):
                 if current_link in first_parents:
                     # if so, generate a path and add to the list of paths for graph generation
                     paths.append(self.generate_path(first_parents, second_parents, current_link))
-                elif current_link not in second_seen_links:
+                else:
                     # if not, expand and add new links if we have not already seen them from this direction
                     result = self.es.search(
                         index="wikipedia_pages",
