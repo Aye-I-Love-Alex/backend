@@ -17,17 +17,25 @@ class Connection(ConnectionInterface):
     second_topic = ""
 
     result_tree = {}
+    error_messages = []
 
     def __init__(self, first_topic, second_topic):
+        self.error_messages.clear()
         self.first_page = self.es.search(index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}})
         if len(self.first_page["hits"]["hits"]) > 0:
             self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
             self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
+        else:
+            # no results in database for term
+            self.error_messages.append('"' + first_topic + '" yielded no results in simple Wikipedia.\n')
 
         self.second_page = self.es.search(index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}})
         if len(self.second_page["hits"]["hits"]) > 0:
             self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
             self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
+        else:
+            # no results in database for term
+            self.error_messages.append('"' + second_topic + '" yielded no results in simple Wikipedia.\n')
 
     # Generating path when BFS finds a path
     def generate_path(self, first_parents, second_parents, common):
@@ -132,5 +140,10 @@ class Connection(ConnectionInterface):
 
             current_iter += 1
 
+        # If there were no paths for the terms, append as an error message
+        if len(paths) == 0 and len(self.first_topic) > 0 and len(self.second_topic) > 0:
+            self.error_messages.append('No connection was found between "' + self.first_topic + '" and "' + \
+                                  self.second_topic + '."\n')
+
         # Returning array of array of paths
-        return paths
+        return paths, self.error_messages
