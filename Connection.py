@@ -1,6 +1,8 @@
 from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
 
+MAX_ITER = 1000
+
 
 class Connection(ConnectionInterface):
 
@@ -17,22 +19,19 @@ class Connection(ConnectionInterface):
     result_tree = {}
 
     def __init__(self, first_topic, second_topic):
-        self.first_page = self.es.search(
-            index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}}
-        )
-        self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
-        self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
+        self.first_page = self.es.search(index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}})
+        if len(self.first_page["hits"]["hits"]) > 0:
+            self.first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
+            self.first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
 
-        self.second_page = self.es.search(
-            index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}}
-        )
-        self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
-        self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
+        self.second_page = self.es.search(index="wikipedia_pages", body={"query": {"match": {"title": second_topic}}})
+        if len(self.second_page["hits"]["hits"]) > 0:
+            self.second_links = self.second_page["hits"]["hits"][0]["_source"]["links"]
+            self.second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
 
     # Generating path when BFS finds a path
     def generate_path(self, first_parents, second_parents, common):
-        path = []
-        path.append(common)
+        path = [common]
         child = common
 
         # Adding to front for first topic's path
@@ -48,33 +47,37 @@ class Connection(ConnectionInterface):
             path.append(parent)
             child = parent
 
+        # remove front and end 'None' because of initialization of parents
+        path.pop(0)
+        path.pop()
+
         return path
 
     # Bidirectional BFS logic here
-    def find_all_connections(self):
-
+    def find_all_connections(self, max_iter=MAX_ITER):
         paths = []
-        # Storing all of the links for the first and second topics separately
-        first_topic_links = self.first_links.copy()
-        second_topic_links = self.second_links.copy()
 
-        # Storing the parents for each link
-        first_parents = {}
+        # Initialize topic links, parents, and seen links for first and second links
+        # topic links are the links we have yet to explore/expand to get more links
+        # parents are dictionaries recording child:parent for path generation
+        # seen links are links that have been explored/expanded
+        first_topic_links = []
+        first_parents = {self.first_topic: None}
+        first_seen_links = {self.first_topic}
         for link in self.first_links:
-            first_parents[link] = self.first_topic
+            if link not in first_parents:
+                first_topic_links.append(link)
+                first_parents[link] = self.first_topic
 
-        second_parents = {}
+        second_topic_links = []
+        second_parents = {self.second_topic: None}
+        second_seen_links = {self.second_topic}
         for link in self.second_links:
-            second_parents[link] = self.second_topic
+            if link not in second_parents:
+                second_topic_links.append(link)
+                second_parents[link] = self.second_topic
 
-        # Storing the seen links for the first and second topic separately
-        first_seen_links = []
-        first_seen_links.append(self.first_topic)
-        second_seen_links = []
-        second_seen_links.append(self.second_topic)
-
-        # Only iterating for 1000 iterations currently
-        max_iter = 1000
+        # Initialize iteration counter
         current_iter = 0
 
         # Only continuing while there are still links in both topics and the maximum number of iterations
@@ -82,99 +85,52 @@ class Connection(ConnectionInterface):
         while (
             len(first_topic_links) != 0 or len(second_topic_links) != 0
         ) and current_iter < max_iter:
-            current_link = ""
 
-            # Only continuing if there are links remaining for the first topic
+            # pop off queue of links to explore
             if len(first_topic_links) != 0:
                 current_link = first_topic_links.pop(0)
 
-                # Path found in this case, appending to list of completed paths
-                if current_link in second_seen_links:
-                    paths.append(
-                        self.generate_path(first_parents, second_parents, current_link)
+                # check if the node has been seen by the other BFS direction (second link)
+                if current_link in second_parents:
+                    # if so, generate a path and add to the list of paths for graph generation
+                    paths.append(self.generate_path(first_parents, second_parents, current_link))
+                else:
+                    # if not, expand and add new links if we have not already seen them from this direction
+                    result = self.es.search(
+                        index="wikipedia_pages",
+                        body={"query": {"match": {"title": current_link}}},
                     )
+                    first_seen_links.add(current_link)
+                    if len(result["hits"]["hits"]) > 0:
+                        result_links = result["hits"]["hits"][0]["_source"]["links"]
+                        for link in result_links:
+                            if link not in first_parents:
+                                first_topic_links.append(link)
+                                first_parents[link] = current_link
 
-                # Appending to seen links
-                if current_link not in first_seen_links:
-                    first_seen_links.append(current_link)
-
-                # Expanding current_link and storing for future work
-                result = self.es.search(
-                    index="wikipedia_pages",
-                    body={"query": {"match": {"title": current_link}}},
-                )
-
-                # Ensuring there are actual results, storing links from the current page and
-                # storing the children for future expansion and saving the parents of the children
-                if len(result["hits"]["hits"]) > 0:
-                    result_links = result["hits"]["hits"][0]["_source"]["links"]
-                    for link in result_links:
-                        if link not in first_seen_links:
-                            first_topic_links.append(link)
-                            first_parents[link] = current_link
-
-            # Only continuing if there are links remaining for the second topic
+            # pop off queue of links to explore
             if len(second_topic_links) != 0:
                 current_link = second_topic_links.pop(0)
-                if current_link in first_seen_links:
-                    # Path found in this case
-                    paths.append(
-                        self.generate_path(first_parents, second_parents, current_link)
+
+                # check if the node has been seen by the other BFS direction (first link)
+                if current_link in first_parents:
+                    # if so, generate a path and add to the list of paths for graph generation
+                    paths.append(self.generate_path(first_parents, second_parents, current_link))
+                else:
+                    # if not, expand and add new links if we have not already seen them from this direction
+                    result = self.es.search(
+                        index="wikipedia_pages",
+                        body={"query": {"match": {"title": current_link}}},
                     )
-
-                # Appending to seen links if necessary
-                if current_link not in second_seen_links:
-                    second_seen_links.append(current_link)
-
-                # Ensuring there are actual results, storing links from the current page and
-                # storing the children for future expansion and saving the parents of the children
-                result = self.es.search(
-                    index="wikipedia_pages",
-                    body={"query": {"match": {"title": current_link}}},
-                )
-                if len(result["hits"]["hits"]) > 0:
-                    result_links = result["hits"]["hits"][0]["_source"]["links"]
-                    for link in result_links:
-                        if link not in second_seen_links:
-                            second_topic_links.append(link)
-                            second_parents[link] = current_link
+                    second_seen_links.add(current_link)
+                    if len(result["hits"]["hits"]) > 0:
+                        result_links = result["hits"]["hits"][0]["_source"]["links"]
+                        for link in result_links:
+                            if link not in second_parents:
+                                second_topic_links.append(link)
+                                second_parents[link] = current_link
 
             current_iter += 1
 
         # Returning array of array of paths
         return paths
-
-    # BFS logic here for MVP
-    def find_connection(self):
-        first_links = self.first_page["hits"]["hits"][0]["_source"]["links"]
-        first_topic = self.first_page["hits"]["hits"][0]["_source"]["title"]
-        parent_queue = [first_topic] * len(first_links)
-
-        second_topic = self.second_page["hits"]["hits"][0]["_source"]["title"]
-
-        path = []
-        seen_links = first_links.copy()
-        seen_links.append(first_topic)
-        cont = True
-        while len(first_links) != 0 and cont:
-            current_link = first_links.pop(0)
-            self.result_tree[current_link] = parent_queue.pop(0)
-            if current_link == second_topic:
-                iter_back = current_link
-                while iter_back != first_topic:
-                    path.append(iter_back)
-                    iter_back = self.result_tree[iter_back]
-                path.append(first_topic)
-                cont = False
-            else:
-                result_links = self.es.search(
-                    index="wikipedia_pages",
-                    body={"query": {"match": {"title": current_link}}},
-                )["hits"]["hits"][0]["_source"]["links"]
-                for link in result_links:
-                    if link not in seen_links:
-                        seen_links.append(link)
-                        first_links.append(link)
-                        parent_queue.append(current_link)
-        path.reverse()
-        return path
