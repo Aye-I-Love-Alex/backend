@@ -5,6 +5,7 @@ from pyvis.network import Network
 import pandas as pd
 
 app = Flask(__name__, static_folder='graph')
+GRAPH_LOCATION = "./graph/graph.html"
 
 
 @app.route("/", methods=["POST", "GET"])
@@ -61,14 +62,16 @@ def index():
 
                 net = Network()
                 net.from_nx(graph)
-                net.save_graph("./graph/graph.html")
+                net.html = net.generate_html()
+                with open(GRAPH_LOCATION, "w+") as out:
+                    out.write(net.html)
                 
     return render_template("index.html", connection=net)
 
 
 @app.route("/graph/graph.html")
 def show_graph():
-    return send_file("./graph/graph.html")
+    return send_file(GRAPH_LOCATION)
 
 
 if __name__ == "__main__":
