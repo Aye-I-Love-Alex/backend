@@ -19,3 +19,13 @@ If ElasticSearch has been run in the past:
 4. Run the following terminal command in the home directory(\concept-connector) % py WikiReader.py
 *Estimated runtime is about 1.5 hours
 
+### Running the Frontend
+## Requirements
+* ElasticSearch and Docker installed and functional
+* BeautifulSoup python library installed
+* All python packages from requirements.txt installed in a virtual environment i.e. venv.
+(Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.)
+##Steps
+1. cd concept-conector
+2. flask --app comparator run
+
