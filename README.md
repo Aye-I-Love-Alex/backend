@@ -1,4 +1,4 @@
-### Running ElasticSearch:
+## Running ElasticSearch:
 If running for first time:
 1. Download ElasticSearch [here](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/getting-started.html#run-elasticsearch) and Docker [here](https://www.docker.com/products/docker-desktop/)
 2. Follow self-managed commands to initially run ElasticSearch for Docker [here](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/getting-started.html#run-elasticsearch)
@@ -8,24 +8,24 @@ If running for first time:
 If ElasticSearch has been run in the past:
 1. Open Docker Desktop and run container for ElasticSearch
 
-### Running the Parser
-## Requirements
+## Running the Parser
+### Requirements
 * ElasticSearch and Docker installed and functional
 * BeautifulSoup python library installed
-## Steps
+### Steps
 1. Download the simple wikipedia datadump [here](https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-articles-multistream.xml.bz2)
 2. Unzip the compressed datadump with a software like 7zip or winrar, will be 1 GB uncompressed
 3. Place the file in the home directory(\concept-connector)
 4. Run the following terminal command in the home directory(\concept-connector) % py WikiReader.py
 *Estimated runtime is about 1.5 hours
 
-### Running the Frontend
-## Requirements
+## Running the Frontend
+### Requirements
 * ElasticSearch and Docker installed and functional
 * BeautifulSoup python library installed
 * All python packages from requirements.txt installed in a virtual environment i.e. venv.
 (Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.)
-##Steps
+### Steps
 1. cd concept-conector
 2. flask --app comparator run
 
