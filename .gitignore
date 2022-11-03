@@ -134,4 +134,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-.simplewiki-latest-pages-articles-multistream.xml
+simplewiki-latest-pages-articles-multistream.xml

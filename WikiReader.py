@@ -1,7 +1,6 @@
 import time
 import re
 from datetime import datetime
-from bs4 import BeautifulSoup
 from elasticsearch import Elasticsearch
 
 es = Elasticsearch("http://localhost:9200")
@@ -43,18 +42,38 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
 
         # Used to track program execution time
         end_time = time.time()
+        
+        hour = 0
 
         if end_time - start_time > 10.0:
             start_time = time.time()
             
-            start_time_formated = datetime.fromtimestamp(start_time).strftime('%H:%M:%S')
-            original_time_formated = datetime.fromtimestamp(original_time).strftime('%H:%M:%S')
+            # DateTime Object
+            start_time_dt = datetime.fromtimestamp(start_time)
+            # start_time_formated = start_time_dt.strftime('%H:%M:%S')
             
-            elapsed_time = start_time - original_time
+            # DateTime Object
+            original_time_dt = datetime.fromtimestamp(original_time)
+            # original_time_formated = original_time_dt.strftime('%H:%M:%S')
             
-            elapsed_time_formated = datetime.fromtimestamp(elapsed_time).strftime('%H:%M:%S')
+            # Time Delta Object
+            elapsed_time = start_time_dt - original_time_dt
             
-            print("\nPages read: " + str(pages_parsed) + "\n")
-            print("Elapsed Time: " + elapsed_time_formated)
+            '''
+            if elapsed_time.minute == 59 and elapsed_time.second == 59:
+                hour += 1
+        
+            formated_hour = str(hour) + ':' + str(elapsed_time_formated)
+            
+            
+            '''
+            
+            # datetime.fromtimestamp(elapsed_time).strftime('%H:%M:%S')
+            
+            elapsed_time_formated = str(elapsed_time)
+                
+            
+            print("\nPages read: " + str(pages_parsed))
+            print("Elapsed Time: " + elapsed_time_formated  + "\n")
             
 
