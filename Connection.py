@@ -1,8 +1,6 @@
 from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
 
-MAX_ITER = 1000
-
 
 class Connection(ConnectionInterface):
 
@@ -54,7 +52,7 @@ class Connection(ConnectionInterface):
         return path
 
     # Bidirectional BFS logic here
-    def find_all_connections(self, max_iter=MAX_ITER):
+    def find_all_connections(self, max_iter):
         paths = []
 
         # Initialize topic links, parents, and seen links for first and second links
@@ -84,7 +82,7 @@ class Connection(ConnectionInterface):
         # has not been reached yet
         while (
             len(first_topic_links) != 0 or len(second_topic_links) != 0
-        ) and current_iter < max_iter:
+        ) and current_iter < (1000 if not max_iter.isnumeric() else int(max_iter)):
 
             # pop off queue of links to explore
             if len(first_topic_links) != 0:
