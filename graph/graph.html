@@ -1,250 +1,154 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script src="lib/bindings/utils.js"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-        
-<center>
-<h1></h1>
-</center>
+  <head>
+    <meta charset="utf-8" />
 
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+    <script src="lib/bindings/utils.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css"
+      integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"
+      integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <center>
+      <h1></h1>
+    </center>
+
+    <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
 <script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+      crossorigin="anonymous"
+    ></script>
 
+    <center>
+      <h1></h1>
+    </center>
+    <style type="text/css">
+      #mynetwork {
+        width: 100%;
+        height: 500px;
+        background-color: #ffffff;
+        border: 1px solid lightgray;
+        position: relative;
+        float: left;
+      }
+    </style>
+  </head>
 
-        <center>
-          <h1></h1>
-        </center>
-        <style type="text/css">
+  <body>
+    <div class="card" style="width: 100%">
+      <div id="mynetwork" class="card-body"></div>
+    </div>
 
-             #mynetwork {
-                 width: 100%;
-                 height: 500px;
-                 background-color: #ffffff;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
+    <script type="text/javascript">
+      // initialize global variables.
+      var edges;
+      var nodes;
+      var allNodes;
+      var allEdges;
+      var nodeColors;
+      var originalNodes;
+      var network;
+      var container;
+      var options, data;
+      var filter = {
+        item: "",
+        property: "",
+        value: [],
+      };
 
-             
-             #loadingBar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width: 100%;
-                 height: 500px;
-                 background-color:rgba(200,200,200,0.8);
-                 -webkit-transition: all 0.5s ease;
-                 -moz-transition: all 0.5s ease;
-                 -ms-transition: all 0.5s ease;
-                 -o-transition: all 0.5s ease;
-                 transition: all 0.5s ease;
-                 opacity:1;
-             }
+      // This method is responsible for drawing the graph, returns the drawn network
+      function drawGraph() {
+        var container = document.getElementById("mynetwork");
 
-             #bar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width:20px;
-                 height:20px;
-                 margin:auto auto auto auto;
-                 border-radius:11px;
-                 border:2px solid rgba(30,30,30,0.05);
-                 background: rgb(0, 173, 246); /* Old browsers */
-                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
-             }
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([
+          {
+            color: "#97c2fc",
+            id: "Cincinnati Reds",
+            label: "Cincinnati Reds",
+            shape: "dot",
+            size: 10,
+          },
+          {
+            color: "#97c2fc",
+            id: "Cincinnati",
+            label: "Cincinnati",
+            shape: "dot",
+            size: 10,
+          },
+          {
+            color: "#97c2fc",
+            id: "Charles Manson",
+            label: "Charles Manson",
+            shape: "dot",
+            size: 10,
+          },
+        ]);
+        edges = new vis.DataSet([
+          { Weight: 1, from: "Cincinnati Reds", to: "Cincinnati", width: 1 },
+          { Weight: 1, from: "Cincinnati", to: "Charles Manson", width: 1 },
+        ]);
 
-             #border {
-                 position:absolute;
-                 top:10px;
-                 left:10px;
-                 width:500px;
-                 height:23px;
-                 margin:auto auto auto auto;
-                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
-                 border-radius:10px;
-             }
-
-             #text {
-                 position:absolute;
-                 top:8px;
-                 left:530px;
-                 width:30px;
-                 height:50px;
-                 margin:auto auto auto auto;
-                 font-size:22px;
-                 color: #000000;
-             }
-
-             div.outerBorder {
-                 position:relative;
-                 top:400px;
-                 width:600px;
-                 height:44px;
-                 margin:auto auto auto auto;
-                 border:8px solid rgba(0,0,0,0.1);
-                 background: rgb(252,252,252); /* Old browsers */
-                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
-                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
-                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
-                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
-                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
-                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
-                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
-                 border-radius:72px;
-                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-             }
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-            <div id="loadingBar">
-              <div class="outerBorder">
-                <div id="text">0%</div>
-                <div id="border">
-                  <div id="bar"></div>
-                </div>
-              </div>
-            </div>
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "red", "id": "God", "label": "God", "shape": "dot", "size": 10}, {"color": "red", "id": "Devil", "label": "Devil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Allah", "label": "Allah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christian", "label": "Christian", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Abrahamic religions", "label": "Abrahamic religions", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Incarnation (Christianity)", "label": "Incarnation (Christianity)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "New Testament", "label": "New Testament", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Old Testament", "label": "Old Testament", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fallen angel", "label": "fallen angel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Durga", "label": "Durga", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "supernatural", "label": "supernatural", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Japanese language", "label": "Japanese language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "spirit", "label": "spirit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "deism", "label": "deism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Zoroastrianism", "label": "Zoroastrianism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Abrahamic religion", "label": "Abrahamic religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Advaita Vedanta", "label": "Advaita Vedanta", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "agnosticism", "label": "agnosticism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ancient Greece", "label": "Ancient Greece", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arabic language", "label": "Arabic language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Aristotle", "label": "Aristotle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Atenism", "label": "Atenism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Balinese Hinduism", "label": "Balinese Hinduism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Blaise Pascal", "label": "Blaise Pascal", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "body", "label": "body", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Canon (Bible)", "label": "Canon (Bible)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "capital letter", "label": "capital letter", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chinese folk religion", "label": "Chinese folk religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Confucianism", "label": "Confucianism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cosmological argument", "label": "cosmological argument", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "expected value", "label": "expected value", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Fall of Man", "label": "Fall of Man", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Freedom", "label": "Freedom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "God paradox", "label": "God paradox", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "good", "label": "good", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gospels", "label": "Gospels", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Holy Spirit", "label": "Holy Spirit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "human beings", "label": "human beings", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hypothesis", "label": "hypothesis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "image", "label": "image", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "incarnation", "label": "incarnation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "infinity", "label": "infinity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "kami", "label": "kami", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kurt G\u00f6del", "label": "Kurt G\u00f6del", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monad (philosophy)", "label": "Monad (philosophy)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monotheistic", "label": "Monotheistic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "morality", "label": "morality", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Muslim", "label": "Muslim", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "nature", "label": "nature", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ontological argument", "label": "ontological argument", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "paganism", "label": "paganism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "personality", "label": "personality", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Philosophy", "label": "Philosophy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "poetry", "label": "poetry", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Polytheism", "label": "Polytheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Renaissance", "label": "Renaissance", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "rocks", "label": "rocks", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "statistics", "label": "statistics", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "teleological argument", "label": "teleological argument", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "theism", "label": "theism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "YHWH", "label": "YHWH", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christianity", "label": "Christianity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Book of Revelation", "label": "Book of Revelation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "demon", "label": "demon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "angel", "label": "angel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Horn (anatomy)", "label": "Horn (anatomy)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "pitchfork", "label": "pitchfork", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "article (grammar)", "label": "article (grammar)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hazrat Inayat Khan", "label": "Hazrat Inayat Khan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "proper noun", "label": "proper noun", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Fundamentalism", "label": "Fundamentalism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Religion", "label": "Religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "baptism", "label": "baptism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Catholic", "label": "Catholic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Evangelicalism", "label": "Evangelicalism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Meitei Christians", "label": "Meitei Christians", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Salvation", "label": "Salvation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bah\u00e1\u0027\u00ed Faith", "label": "Bah\u00e1\u0027\u00ed Faith", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mandaeism", "label": "Mandaeism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bible", "label": "Bible", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Buddha", "label": "Buddha", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "religion", "label": "religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nation", "label": "Nation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Apocalypse", "label": "Apocalypse", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Judaism", "label": "Judaism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "First Epistle to Timothy", "label": "First Epistle to Timothy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Apocrypha", "label": "Apocrypha", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Greek language", "label": "Greek language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hebrew language", "label": "Hebrew language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "historian", "label": "historian", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "history of ancient Israel and Judah", "label": "history of ancient Israel and Judah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Luke the Evangelist", "label": "Luke the Evangelist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark the Evangelist", "label": "Mark the Evangelist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Matthew the Evangelist", "label": "Matthew the Evangelist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "prophecy", "label": "prophecy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "resurrection", "label": "resurrection", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Book of Joshua", "label": "Book of Joshua", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Vulgate", "label": "Vulgate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "David", "label": "David", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "King", "label": "King", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Abraham", "label": "Abraham", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "adam and eve", "label": "adam and eve", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ancient Greek language", "label": "Ancient Greek language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Anno Domini", "label": "Anno Domini", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Aramaic", "label": "Aramaic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Atheist", "label": "Atheist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Christian denomination", "label": "Christian denomination", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Council of Constance", "label": "Council of Constance", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "crucifixion", "label": "crucifixion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deist", "label": "Deist", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deuterocanonical", "label": "Deuterocanonical", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Early Modern English", "label": "Early Modern English", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "English language", "label": "English language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "generation", "label": "generation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gothic language", "label": "Gothic language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "heretic", "label": "heretic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Injil", "label": "Injil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "James (son of Zebedee)", "label": "James (son of Zebedee)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jan Hus", "label": "Jan Hus", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jerome", "label": "Jerome", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jews", "label": "Jews", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "John of Gaunt", "label": "John of Gaunt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Joseph (Bible)", "label": "Joseph (Bible)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "law", "label": "law", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Moses", "label": "Moses", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Noah", "label": "Noah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Petrus Valdes", "label": "Petrus Valdes", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "poem", "label": "poem", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "print", "label": "print", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "process", "label": "process", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "religious", "label": "religious", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sacred", "label": "sacred", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "scribe", "label": "scribe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "source", "label": "source", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "text", "label": "text", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "The Virgin Mary", "label": "The Virgin Mary", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Thomas More", "label": "Thomas More", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "translation", "label": "translation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "wise", "label": "wise", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Wufila", "label": "Wufila", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Deity", "label": "Deity", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Buddhism", "label": "Buddhism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "halo", "label": "halo", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Islam", "label": "Islam", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "universe", "label": "universe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hell", "label": "Hell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "heaven", "label": "heaven", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Satan", "label": "Satan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Maxwell\u0027s Demon", "label": "Maxwell\u0027s Demon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "fiction", "label": "fiction", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "bronze", "label": "bronze", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Greek mythology", "label": "Greek mythology", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Canada", "label": "Canada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jesus", "label": "Jesus", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Salvation (Christianity)", "label": "Salvation (Christianity)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Qur\u0027an", "label": "Qur\u0027an", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "John the Apostle", "label": "John the Apostle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Muhammad", "label": "Muhammad", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "miracle", "label": "miracle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Epistle of James", "label": "Epistle of James", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gospel of Luke", "label": "Gospel of Luke", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Paul of Tarsus", "label": "Paul of Tarsus", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Saint Peter", "label": "Saint Peter", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Book of Nehemiah", "label": "Book of Nehemiah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tanakh", "label": "Tanakh", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Psalms", "label": "Psalms", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Book of Micah", "label": "Book of Micah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Book of Genesis", "label": "Book of Genesis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Angel", "label": "Angel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lucifer", "label": "Lucifer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Michael (archangel)", "label": "Michael (archangel)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hinduism", "label": "Hinduism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "asura", "label": "asura", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "monotheism", "label": "monotheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rama", "label": "Rama", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "India", "label": "India", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "legendary creature", "label": "legendary creature", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "sin", "label": "sin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "god", "label": "god", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "soul", "label": "soul", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monotheism", "label": "Monotheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Freedom of religion", "label": "Freedom of religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ritual", "label": "ritual", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mosque", "label": "mosque", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "List of religions", "label": "List of religions", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Philosophy of religion", "label": "Philosophy of religion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Oral tradition", "label": "Oral tradition", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "death", "label": "death", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Syria", "label": "Syria", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "translate", "label": "translate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "reincarnation", "label": "reincarnation", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Solomon", "label": "Solomon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "History of ancient Israel and Judah", "label": "History of ancient Israel and Judah", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Solomonid dynasty", "label": "Solomonid dynasty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gabriel", "label": "Gabriel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Harut and Marut", "label": "Harut and Marut", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Aqdas", "label": "Aqdas", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brahman", "label": "Brahman", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "atheism", "label": "atheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Atheism", "label": "Atheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Iran", "label": "Iran", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Crete", "label": "Crete", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Achaemenid Empire", "label": "Achaemenid Empire", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "alphabet", "label": "alphabet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Aristocracy", "label": "Aristocracy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bronze Age", "label": "Bronze Age", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Benghazi", "label": "Benghazi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Classical Athens", "label": "Classical Athens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Battle of Thermopylae", "label": "Battle of Thermopylae", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Genie", "label": "Genie", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Algeria", "label": "Algeria", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Libya", "label": "Libya", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Afghanistan", "label": "Afghanistan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Palestine", "label": "Palestine", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Qatar", "label": "Qatar", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Turkey", "label": "Turkey", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Judaeo-Arabic languages", "label": "Judaeo-Arabic languages", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Quran", "label": "Quran", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bahrain", "label": "Bahrain", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lebanon", "label": "Lebanon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Great Hymn to the Aten", "label": "Great Hymn to the Aten", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "epistemology", "label": "epistemology", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Immanuel Kant", "label": "Immanuel Kant", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ontology", "label": "ontology", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pascal\u0027s Wager", "label": "Pascal\u0027s Wager", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "scientific method", "label": "scientific method", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pascal\u0027s Triangle", "label": "Pascal\u0027s Triangle", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "probability", "label": "probability", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "head", "label": "head", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Central Asia", "label": "Central Asia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "China", "label": "China", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nirvana", "label": "Nirvana", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Enlightenment (Buddhism)", "label": "Enlightenment (Buddhism)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "afterlife", "label": "afterlife", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Plato", "label": "Plato", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kali", "label": "Kali", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Krishna", "label": "Krishna", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "prayer", "label": "prayer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Parvati", "label": "Parvati", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "logic", "label": "logic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "mathematician", "label": "mathematician", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "modal logic", "label": "modal logic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Monism", "label": "Monism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tree", "label": "tree", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "philosophy", "label": "philosophy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "polytheism", "label": "polytheism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Shiva", "label": "Shiva", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "theology", "label": "theology", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Thomas Aquinas", "label": "Thomas Aquinas", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Egypt", "label": "Egypt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "brass", "label": "brass", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Shinto", "label": "Shinto", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sikhism", "label": "Sikhism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Taoism", "label": "Taoism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Wicca", "label": "Wicca", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Alexander the Great", "label": "Alexander the Great", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Anatolia", "label": "Anatolia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Babylon", "label": "Babylon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Black Sea", "label": "Black Sea", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arabic alphabet", "label": "Arabic alphabet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kuwait", "label": "Kuwait", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Maghrebi Arabic", "label": "Maghrebi Arabic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Athens", "label": "Athens", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Theology", "label": "Theology", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "problem of evil", "label": "problem of evil", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Encyclopedia of Philosophy", "label": "Encyclopedia of Philosophy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "argument from design", "label": "argument from design", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hell", "label": "hell", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "tool", "label": "tool", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "shovel", "label": "shovel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hebrew Bible", "label": "Hebrew Bible", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tunisia", "label": "Tunisia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jesus Christ", "label": "Jesus Christ", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jew", "label": "Jew", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Isaac", "label": "Isaac", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jacob", "label": "Jacob", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gospel of Mark", "label": "Gospel of Mark", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Iraq", "label": "Iraq", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "writing", "label": "writing", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Satanism", "label": "Satanism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Middle East", "label": "Middle East", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "hegemony", "label": "hegemony", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pakistan", "label": "Pakistan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gospel of Matthew", "label": "Gospel of Matthew", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Saudi Arabia", "label": "Saudi Arabia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United Arab Emirates", "label": "United Arab Emirates", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Sun", "label": "Sun", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "light", "label": "light", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "ghost", "label": "ghost", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Twelve Apostles", "label": "Twelve Apostles", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "water", "label": "water", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "corrosion", "label": "corrosion", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "prophet", "label": "prophet", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Aramaic language", "label": "Aramaic language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "1604", "label": "1604", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "language", "label": "language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Middle English", "label": "Middle English", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Greco-Persian Wars", "label": "Greco-Persian Wars", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "polis", "label": "polis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Roman Empire", "label": "Roman Empire", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "barbarian", "label": "barbarian", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "culture", "label": "culture", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "John Wycliffe", "label": "John Wycliffe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Latin", "label": "Latin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "William Tyndale", "label": "William Tyndale", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Encyclop\u00e6dia Britannica", "label": "Encyclop\u00e6dia Britannica", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Cicero", "label": "Cicero", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tigris", "label": "Tigris", "shape": "dot", "size": 10}]);
-                  edges = new vis.DataSet([{"color": "red", "from": "God", "to": "Devil", "width": 1}, {"from": "God", "to": "Allah", "width": 1}, {"from": "God", "to": "Christian", "width": 1}, {"from": "God", "to": "Abrahamic religions", "width": 1}, {"from": "God", "to": "Incarnation (Christianity)", "width": 1}, {"from": "God", "to": "New Testament", "width": 1}, {"from": "God", "to": "Old Testament", "width": 1}, {"from": "God", "to": "fallen angel", "width": 1}, {"from": "God", "to": "Durga", "width": 1}, {"from": "God", "to": "supernatural", "width": 1}, {"from": "God", "to": "Japanese language", "width": 1}, {"from": "God", "to": "spirit", "width": 1}, {"from": "God", "to": "deism", "width": 1}, {"from": "God", "to": "Zoroastrianism", "width": 1}, {"from": "God", "to": "Abrahamic religion", "width": 1}, {"from": "God", "to": "Advaita Vedanta", "width": 1}, {"from": "God", "to": "agnosticism", "width": 1}, {"from": "God", "to": "Ancient Greece", "width": 1}, {"from": "God", "to": "Arabic language", "width": 1}, {"from": "God", "to": "Aristotle", "width": 1}, {"from": "God", "to": "Atenism", "width": 1}, {"from": "God", "to": "Balinese Hinduism", "width": 1}, {"from": "God", "to": "Blaise Pascal", "width": 1}, {"from": "God", "to": "body", "width": 1}, {"from": "God", "to": "Canon (Bible)", "width": 1}, {"from": "God", "to": "capital letter", "width": 1}, {"from": "God", "to": "Chinese folk religion", "width": 1}, {"from": "God", "to": "Confucianism", "width": 1}, {"from": "God", "to": "cosmological argument", "width": 1}, {"from": "God", "to": "expected value", "width": 1}, {"from": "God", "to": "Fall of Man", "width": 1}, {"from": "God", "to": "Freedom", "width": 1}, {"from": "God", "to": "God paradox", "width": 1}, {"from": "God", "to": "good", "width": 1}, {"from": "God", "to": "Gospels", "width": 1}, {"from": "God", "to": "Holy Spirit", "width": 1}, {"from": "God", "to": "human beings", "width": 1}, {"from": "God", "to": "hypothesis", "width": 1}, {"from": "God", "to": "image", "width": 1}, {"from": "God", "to": "incarnation", "width": 1}, {"from": "God", "to": "infinity", "width": 1}, {"from": "God", "to": "kami", "width": 1}, {"from": "God", "to": "Kurt G\u00f6del", "width": 1}, {"from": "God", "to": "Monad (philosophy)", "width": 1}, {"from": "God", "to": "Monotheistic", "width": 1}, {"from": "God", "to": "morality", "width": 1}, {"from": "God", "to": "Muslim", "width": 1}, {"from": "God", "to": "nature", "width": 1}, {"from": "God", "to": "ontological argument", "width": 1}, {"from": "God", "to": "paganism", "width": 1}, {"from": "God", "to": "personality", "width": 1}, {"from": "God", "to": "Philosophy", "width": 1}, {"from": "God", "to": "poetry", "width": 1}, {"from": "God", "to": "Polytheism", "width": 1}, {"from": "God", "to": "Renaissance", "width": 1}, {"from": "God", "to": "rocks", "width": 1}, {"from": "God", "to": "statistics", "width": 1}, {"from": "God", "to": "teleological argument", "width": 1}, {"from": "God", "to": "theism", "width": 1}, {"from": "God", "to": "YHWH", "width": 1}, {"color": "red", "from": "Devil", "to": "Christianity", "width": 1}, {"color": "red", "from": "Devil", "to": "Book of Revelation", "width": 1}, {"color": "red", "from": "Devil", "to": "demon", "width": 1}, {"color": "red", "from": "Devil", "to": "angel", "width": 1}, {"color": "red", "from": "Devil", "to": "Horn (anatomy)", "width": 1}, {"color": "red", "from": "Devil", "to": "pitchfork", "width": 1}, {"from": "Allah", "to": "article (grammar)", "width": 1}, {"from": "Allah", "to": "Hazrat Inayat Khan", "width": 1}, {"from": "Allah", "to": "proper noun", "width": 1}, {"from": "Christian", "to": "Christianity", "width": 1}, {"from": "Christian", "to": "Fundamentalism", "width": 1}, {"from": "Christianity", "to": "Fundamentalism", "width": 1}, {"from": "Christianity", "to": "Religion", "width": 1}, {"from": "Christianity", "to": "baptism", "width": 1}, {"from": "Christianity", "to": "Catholic", "width": 1}, {"from": "Christianity", "to": "Evangelicalism", "width": 1}, {"from": "Christianity", "to": "Meitei Christians", "width": 1}, {"from": "Christianity", "to": "Salvation", "width": 1}, {"from": "Abrahamic religions", "to": "Bah\u00e1\u0027\u00ed Faith", "width": 1}, {"from": "Abrahamic religions", "to": "Mandaeism", "width": 1}, {"from": "Bah\u00e1\u0027\u00ed Faith", "to": "Bible", "width": 1}, {"from": "Bah\u00e1\u0027\u00ed Faith", "to": "Buddha", "width": 1}, {"from": "Bah\u00e1\u0027\u00ed Faith", "to": "religion", "width": 1}, {"from": "Bah\u00e1\u0027\u00ed Faith", "to": "Nation", "width": 1}, {"from": "Bible", "to": "Apocalypse", "width": 1}, {"from": "Bible", "to": "Judaism", "width": 1}, {"from": "Bible", "to": "First Epistle to Timothy", "width": 1}, {"from": "Bible", "to": "Apocrypha", "width": 1}, {"from": "Bible", "to": "Greek language", "width": 1}, {"from": "Bible", "to": "Hebrew language", "width": 1}, {"from": "Bible", "to": "historian", "width": 1}, {"from": "Bible", "to": "history of ancient Israel and Judah", "width": 1}, {"from": "Bible", "to": "Luke the Evangelist", "width": 1}, {"from": "Bible", "to": "Mark the Evangelist", "width": 1}, {"from": "Bible", "to": "Matthew the Evangelist", "width": 1}, {"from": "Bible", "to": "prophecy", "width": 1}, {"from": "Bible", "to": "resurrection", "width": 1}, {"from": "Bible", "to": "Book of Joshua", "width": 1}, {"from": "Bible", "to": "Vulgate", "width": 1}, {"from": "Bible", "to": "David", "width": 1}, {"from": "Bible", "to": "King", "width": 1}, {"from": "Bible", "to": "Abraham", "width": 1}, {"from": "Bible", "to": "adam and eve", "width": 1}, {"from": "Bible", "to": "Ancient Greek language", "width": 1}, {"from": "Bible", "to": "Anno Domini", "width": 1}, {"from": "Bible", "to": "Aramaic", "width": 1}, {"from": "Bible", "to": "Atheist", "width": 1}, {"from": "Bible", "to": "Christian denomination", "width": 1}, {"from": "Bible", "to": "Council of Constance", "width": 1}, {"from": "Bible", "to": "crucifixion", "width": 1}, {"from": "Bible", "to": "Deist", "width": 1}, {"from": "Bible", "to": "Deuterocanonical", "width": 1}, {"from": "Bible", "to": "Early Modern English", "width": 1}, {"from": "Bible", "to": "English language", "width": 1}, {"from": "Bible", "to": "generation", "width": 1}, {"from": "Bible", "to": "Gothic language", "width": 1}, {"from": "Bible", "to": "heretic", "width": 1}, {"from": "Bible", "to": "Injil", "width": 1}, {"from": "Bible", "to": "James (son of Zebedee)", "width": 1}, {"from": "Bible", "to": "Jan Hus", "width": 1}, {"from": "Bible", "to": "Jerome", "width": 1}, {"from": "Bible", "to": "Jews", "width": 1}, {"from": "Bible", "to": "John of Gaunt", "width": 1}, {"from": "Bible", "to": "Joseph (Bible)", "width": 1}, {"from": "Bible", "to": "law", "width": 1}, {"from": "Bible", "to": "Moses", "width": 1}, {"from": "Bible", "to": "Noah", "width": 1}, {"from": "Bible", "to": "Petrus Valdes", "width": 1}, {"from": "Bible", "to": "poem", "width": 1}, {"from": "Bible", "to": "print", "width": 1}, {"from": "Bible", "to": "process", "width": 1}, {"from": "Bible", "to": "religious", "width": 1}, {"from": "Bible", "to": "sacred", "width": 1}, {"from": "Bible", "to": "scribe", "width": 1}, {"from": "Bible", "to": "source", "width": 1}, {"from": "Bible", "to": "text", "width": 1}, {"from": "Bible", "to": "The Virgin Mary", "width": 1}, {"from": "Bible", "to": "Thomas More", "width": 1}, {"from": "Bible", "to": "translation", "width": 1}, {"from": "Bible", "to": "wise", "width": 1}, {"from": "Bible", "to": "Wufila", "width": 1}, {"from": "Apocalypse", "to": "Book of Revelation", "width": 1}, {"from": "Book of Revelation", "to": "New Testament", "width": 1}, {"from": "Buddha", "to": "Deity", "width": 1}, {"from": "Buddha", "to": "Buddhism", "width": 1}, {"from": "Buddha", "to": "halo", "width": 1}, {"from": "Deity", "to": "Islam", "width": 1}, {"from": "Deity", "to": "universe", "width": 1}, {"from": "Islam", "to": "Hell", "width": 1}, {"from": "Hell", "to": "heaven", "width": 1}, {"from": "Hell", "to": "religion", "width": 1}, {"from": "Hell", "to": "Satan", "width": 1}, {"from": "heaven", "to": "demon", "width": 1}, {"from": "demon", "to": "Maxwell\u0027s Demon", "width": 1}, {"from": "demon", "to": "fiction", "width": 1}, {"from": "demon", "to": "bronze", "width": 1}, {"from": "demon", "to": "Greek mythology", "width": 1}, {"from": "demon", "to": "Canada", "width": 1}, {"from": "Fundamentalism", "to": "Religion", "width": 1}, {"from": "Incarnation (Christianity)", "to": "Jesus", "width": 1}, {"from": "Jesus", "to": "New Testament", "width": 1}, {"from": "Jesus", "to": "Old Testament", "width": 1}, {"from": "Jesus", "to": "Salvation (Christianity)", "width": 1}, {"from": "Jesus", "to": "Qur\u0027an", "width": 1}, {"from": "Jesus", "to": "John the Apostle", "width": 1}, {"from": "Jesus", "to": "Muhammad", "width": 1}, {"from": "Jesus", "to": "miracle", "width": 1}, {"from": "Jesus", "to": "crucifixion", "width": 1}, {"from": "New Testament", "to": "Epistle of James", "width": 1}, {"from": "New Testament", "to": "Gospel of Luke", "width": 1}, {"from": "New Testament", "to": "Paul of Tarsus", "width": 1}, {"from": "New Testament", "to": "Saint Peter", "width": 1}, {"from": "Old Testament", "to": "Book of Nehemiah", "width": 1}, {"from": "Old Testament", "to": "Tanakh", "width": 1}, {"from": "Old Testament", "to": "Psalms", "width": 1}, {"from": "Old Testament", "to": "Vulgate", "width": 1}, {"from": "Old Testament", "to": "Book of Micah", "width": 1}, {"from": "Old Testament", "to": "Book of Genesis", "width": 1}, {"from": "fallen angel", "to": "Angel", "width": 1}, {"from": "fallen angel", "to": "Lucifer", "width": 1}, {"from": "fallen angel", "to": "Michael (archangel)", "width": 1}, {"from": "Durga", "to": "Hinduism", "width": 1}, {"from": "Hinduism", "to": "asura", "width": 1}, {"from": "Hinduism", "to": "monotheism", "width": 1}, {"from": "Hinduism", "to": "Rama", "width": 1}, {"from": "Hinduism", "to": "India", "width": 1}, {"from": "Hinduism", "to": "Canada", "width": 1}, {"from": "asura", "to": "supernatural", "width": 1}, {"from": "asura", "to": "Japanese language", "width": 1}, {"from": "supernatural", "to": "deism", "width": 1}, {"from": "supernatural", "to": "kami", "width": 1}, {"from": "supernatural", "to": "legendary creature", "width": 1}, {"from": "Salvation (Christianity)", "to": "sin", "width": 1}, {"from": "sin", "to": "spirit", "width": 1}, {"from": "sin", "to": "god", "width": 1}, {"from": "spirit", "to": "soul", "width": 1}, {"from": "religion", "to": "Monotheism", "width": 1}, {"from": "religion", "to": "Freedom of religion", "width": 1}, {"from": "religion", "to": "ritual", "width": 1}, {"from": "religion", "to": "mosque", "width": 1}, {"from": "religion", "to": "historian", "width": 1}, {"from": "religion", "to": "List of religions", "width": 1}, {"from": "religion", "to": "Philosophy of religion", "width": 1}, {"from": "religion", "to": "universe", "width": 1}, {"from": "religion", "to": "Oral tradition", "width": 1}, {"from": "Zoroastrianism", "to": "Maxwell\u0027s Demon", "width": 1}, {"from": "Zoroastrianism", "to": "death", "width": 1}, {"from": "Maxwell\u0027s Demon", "to": "Syria", "width": 1}, {"from": "Maxwell\u0027s Demon", "to": "translate", "width": 1}, {"from": "Maxwell\u0027s Demon", "to": "reincarnation", "width": 1}, {"from": "Abrahamic religion", "to": "Solomon", "width": 1}, {"from": "Solomon", "to": "angel", "width": 1}, {"from": "Solomon", "to": "History of ancient Israel and Judah", "width": 1}, {"from": "Solomon", "to": "Solomonid dynasty", "width": 1}, {"from": "angel", "to": "Gabriel", "width": 1}, {"from": "angel", "to": "Harut and Marut", "width": 1}, {"from": "angel", "to": "Aqdas", "width": 1}, {"from": "angel", "to": "Qur\u0027an", "width": 1}, {"from": "angel", "to": "halo", "width": 1}, {"from": "Advaita Vedanta", "to": "Brahman", "width": 1}, {"from": "agnosticism", "to": "atheism", "width": 1}, {"from": "agnosticism", "to": "Atheism", "width": 1}, {"from": "Ancient Greece", "to": "Iran", "width": 1}, {"from": "Ancient Greece", "to": "Crete", "width": 1}, {"from": "Ancient Greece", "to": "Achaemenid Empire", "width": 1}, {"from": "Ancient Greece", "to": "alphabet", "width": 1}, {"from": "Ancient Greece", "to": "Aristocracy", "width": 1}, {"from": "Ancient Greece", "to": "Bronze Age", "width": 1}, {"from": "Ancient Greece", "to": "Benghazi", "width": 1}, {"from": "Ancient Greece", "to": "Classical Athens", "width": 1}, {"from": "Ancient Greece", "to": "Battle of Thermopylae", "width": 1}, {"from": "Iran", "to": "Genie", "width": 1}, {"from": "Genie", "to": "Satan", "width": 1}, {"from": "Genie", "to": "Muslim", "width": 1}, {"from": "Genie", "to": "Algeria", "width": 1}, {"from": "Genie", "to": "Libya", "width": 1}, {"from": "Genie", "to": "Afghanistan", "width": 1}, {"from": "Genie", "to": "Palestine", "width": 1}, {"from": "Genie", "to": "Qatar", "width": 1}, {"from": "Satan", "to": "Lucifer", "width": 1}, {"from": "Satan", "to": "Michael (archangel)", "width": 1}, {"from": "Arabic language", "to": "Turkey", "width": 1}, {"from": "Arabic language", "to": "Judaeo-Arabic languages", "width": 1}, {"from": "Arabic language", "to": "Quran", "width": 1}, {"from": "Arabic language", "to": "Bahrain", "width": 1}, {"from": "Turkey", "to": "Syria", "width": 1}, {"from": "Syria", "to": "Lebanon", "width": 1}, {"from": "Aristotle", "to": "fiction", "width": 1}, {"from": "Atenism", "to": "Great Hymn to the Aten", "width": 1}, {"from": "atheism", "to": "epistemology", "width": 1}, {"from": "atheism", "to": "Immanuel Kant", "width": 1}, {"from": "atheism", "to": "ontology", "width": 1}, {"from": "atheism", "to": "Pascal\u0027s Wager", "width": 1}, {"from": "Blaise Pascal", "to": "scientific method", "width": 1}, {"from": "Blaise Pascal", "to": "Pascal\u0027s Triangle", "width": 1}, {"from": "Blaise Pascal", "to": "probability", "width": 1}, {"from": "body", "to": "Horn (anatomy)", "width": 1}, {"from": "body", "to": "head", "width": 1}, {"from": "Buddhism", "to": "Central Asia", "width": 1}, {"from": "Buddhism", "to": "China", "width": 1}, {"from": "Buddhism", "to": "Nirvana", "width": 1}, {"from": "Buddhism", "to": "Enlightenment (Buddhism)", "width": 1}, {"from": "Religion", "to": "Polytheism", "width": 1}, {"from": "Religion", "to": "Monotheism", "width": 1}, {"from": "Religion", "to": "afterlife", "width": 1}, {"from": "Holy Spirit", "to": "soul", "width": 1}, {"from": "soul", "to": "Plato", "width": 1}, {"from": "incarnation", "to": "Kali", "width": 1}, {"from": "incarnation", "to": "Krishna", "width": 1}, {"from": "Judaism", "to": "Moses", "width": 1}, {"from": "Judaism", "to": "prayer", "width": 1}, {"from": "Kali", "to": "Parvati", "width": 1}, {"from": "kami", "to": "god", "width": 1}, {"from": "Kurt G\u00f6del", "to": "logic", "width": 1}, {"from": "Kurt G\u00f6del", "to": "mathematician", "width": 1}, {"from": "Kurt G\u00f6del", "to": "modal logic", "width": 1}, {"from": "Monad (philosophy)", "to": "Monism", "width": 1}, {"from": "nature", "to": "tree", "width": 1}, {"from": "ontology", "to": "philosophy", "width": 1}, {"from": "paganism", "to": "polytheism", "width": 1}, {"from": "Parvati", "to": "Shiva", "width": 1}, {"from": "Philosophy", "to": "theology", "width": 1}, {"from": "Philosophy", "to": "Thomas Aquinas", "width": 1}, {"from": "Crete", "to": "Egypt", "width": 1}, {"from": "Egypt", "to": "bronze", "width": 1}, {"from": "bronze", "to": "brass", "width": 1}, {"from": "poetry", "to": "translate", "width": 1}, {"from": "Polytheism", "to": "Shinto", "width": 1}, {"from": "Polytheism", "to": "Sikhism", "width": 1}, {"from": "Polytheism", "to": "Taoism", "width": 1}, {"from": "Polytheism", "to": "Wicca", "width": 1}, {"from": "Achaemenid Empire", "to": "Alexander the Great", "width": 1}, {"from": "Alexander the Great", "to": "Anatolia", "width": 1}, {"from": "Alexander the Great", "to": "Babylon", "width": 1}, {"from": "Anatolia", "to": "Black Sea", "width": 1}, {"from": "Black Sea", "to": "Greek mythology", "width": 1}, {"from": "YHWH", "to": "Abraham", "width": 1}, {"from": "alphabet", "to": "Arabic alphabet", "width": 1}, {"from": "Arabic alphabet", "to": "Gabriel", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Quran", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Lebanon", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Kuwait", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Palestine", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Qatar", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Maghrebi Arabic", "width": 1}, {"from": "Judaeo-Arabic languages", "to": "Muhammad", "width": 1}, {"from": "Aristocracy", "to": "Athens", "width": 1}, {"from": "Athens", "to": "Plato", "width": 1}, {"from": "Atheism", "to": "Theology", "width": 1}, {"from": "Atheism", "to": "problem of evil", "width": 1}, {"from": "Atheism", "to": "Encyclopedia of Philosophy", "width": 1}, {"from": "Atheism", "to": "argument from design", "width": 1}, {"from": "Theology", "to": "hell", "width": 1}, {"from": "hell", "to": "Harut and Marut", "width": 1}, {"from": "Angel", "to": "Aqdas", "width": 1}, {"from": "Angel", "to": "legendary creature", "width": 1}, {"from": "ritual", "to": "mosque", "width": 1}, {"from": "ritual", "to": "religious", "width": 1}, {"from": "Bronze Age", "to": "tool", "width": 1}, {"from": "tool", "to": "shovel", "width": 1}, {"from": "shovel", "to": "pitchfork", "width": 1}, {"from": "First Epistle to Timothy", "to": "Paul of Tarsus", "width": 1}, {"from": "Apocrypha", "to": "Greek language", "width": 1}, {"from": "Apocrypha", "to": "Hebrew Bible", "width": 1}, {"from": "Hebrew Bible", "to": "Hebrew language", "width": 1}, {"from": "Hebrew Bible", "to": "Book of Nehemiah", "width": 1}, {"from": "Benghazi", "to": "Libya", "width": 1}, {"from": "Libya", "to": "Algeria", "width": 1}, {"from": "Libya", "to": "Tunisia", "width": 1}, {"from": "history of ancient Israel and Judah", "to": "Jesus Christ", "width": 1}, {"from": "history of ancient Israel and Judah", "to": "Jew", "width": 1}, {"from": "history of ancient Israel and Judah", "to": "Isaac", "width": 1}, {"from": "history of ancient Israel and Judah", "to": "Jacob", "width": 1}, {"from": "Jesus Christ", "to": "Epistle of James", "width": 1}, {"from": "John the Apostle", "to": "Gospel of Luke", "width": 1}, {"from": "Gospel of Luke", "to": "Mark the Evangelist", "width": 1}, {"from": "Gospel of Luke", "to": "Gospel of Mark", "width": 1}, {"from": "Bahrain", "to": "Iraq", "width": 1}, {"from": "Iraq", "to": "writing", "width": 1}, {"from": "Iraq", "to": "Kuwait", "width": 1}, {"from": "writing", "to": "Satanism", "width": 1}, {"from": "Satanism", "to": "List of religions", "width": 1}, {"from": "Kuwait", "to": "Middle East", "width": 1}, {"from": "Classical Athens", "to": "hegemony", "width": 1}, {"from": "hegemony", "to": "Middle East", "width": 1}, {"from": "India", "to": "Pakistan", "width": 1}, {"from": "Pakistan", "to": "Central Asia", "width": 1}, {"from": "Central Asia", "to": "Afghanistan", "width": 1}, {"from": "Central Asia", "to": "China", "width": 1}, {"from": "Matthew the Evangelist", "to": "Gospel of Matthew", "width": 1}, {"from": "Gospel of Matthew", "to": "Gospel of Mark", "width": 1}, {"from": "Gospel of Mark", "to": "Saint Peter", "width": 1}, {"from": "Qatar", "to": "Saudi Arabia", "width": 1}, {"from": "Saudi Arabia", "to": "United Arab Emirates", "width": 1}, {"from": "Maghrebi Arabic", "to": "Tunisia", "width": 1}, {"from": "Great Hymn to the Aten", "to": "Sun", "width": 1}, {"from": "Sun", "to": "light", "width": 1}, {"from": "light", "to": "ghost", "width": 1}, {"from": "ghost", "to": "afterlife", "width": 1}, {"from": "Saint Peter", "to": "Twelve Apostles", "width": 1}, {"from": "resurrection", "to": "death", "width": 1}, {"from": "resurrection", "to": "miracle", "width": 1}, {"from": "scientific method", "to": "water", "width": 1}, {"from": "water", "to": "corrosion", "width": 1}, {"from": "corrosion", "to": "brass", "width": 1}, {"from": "Enlightenment (Buddhism)", "to": "reincarnation", "width": 1}, {"from": "problem of evil", "to": "Philosophy of religion", "width": 1}, {"from": "Tanakh", "to": "Psalms", "width": 1}, {"from": "Pascal\u0027s Triangle", "to": "probability", "width": 1}, {"from": "Mandaeism", "to": "prophet", "width": 1}, {"from": "prophet", "to": "Book of Micah", "width": 1}, {"from": "Jew", "to": "History of ancient Israel and Judah", "width": 1}, {"from": "Nation", "to": "King", "width": 1}, {"from": "Aramaic", "to": "Aramaic language", "width": 1}, {"from": "English language", "to": "1604", "width": 1}, {"from": "English language", "to": "language", "width": 1}, {"from": "English language", "to": "Middle English", "width": 1}, {"from": "1604", "to": "Solomonid dynasty", "width": 1}, {"from": "Battle of Thermopylae", "to": "Greco-Persian Wars", "width": 1}, {"from": "Greco-Persian Wars", "to": "polis", "width": 1}, {"from": "polis", "to": "Roman Empire", "width": 1}, {"from": "Roman Empire", "to": "barbarian", "width": 1}, {"from": "barbarian", "to": "culture", "width": 1}, {"from": "culture", "to": "generation", "width": 1}, {"from": "Jan Hus", "to": "John Wycliffe", "width": 1}, {"from": "Jerome", "to": "Latin", "width": 1}, {"from": "John Wycliffe", "to": "William Tyndale", "width": 1}, {"from": "Encyclopedia of Philosophy", "to": "Encyclop\u00e6dia Britannica", "width": 1}, {"from": "Encyclop\u00e6dia Britannica", "to": "Latin", "width": 1}, {"from": "argument from design", "to": "Cicero", "width": 1}, {"from": "Cicero", "to": "law", "width": 1}, {"from": "Babylon", "to": "Tigris", "width": 1}, {"from": "Tigris", "to": "source", "width": 1}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {
-    "configure": {
-        "enabled": false
-    },
-    "edges": {
-        "color": {
-            "inherit": true
-        },
-        "smooth": {
-            "enabled": true,
-            "type": "dynamic"
+        nodeColors = {};
+        allNodes = nodes.get({ returnType: "Object" });
+        for (nodeId in allNodes) {
+          nodeColors[nodeId] = allNodes[nodeId].color;
         }
-    },
-    "interaction": {
-        "dragNodes": true,
-        "hideEdgesOnDrag": false,
-        "hideNodesOnDrag": false
-    },
-    "physics": {
-        "enabled": true,
-        "stabilization": {
-            "enabled": true,
-            "fit": true,
-            "iterations": 1000,
-            "onlyDynamicEdges": false,
-            "updateInterval": 50
-        }
-    }
-};
+        allEdges = edges.get({ returnType: "Object" });
+        // adding nodes and edges to the graph
+        data = { nodes: nodes, edges: edges };
 
-                  
+        var options = {
+          configure: {
+            enabled: false,
+          },
+          edges: {
+            color: {
+              inherit: true,
+            },
+            smooth: {
+              enabled: true,
+              type: "dynamic",
+            },
+          },
+          interaction: {
+            dragNodes: true,
+            hideEdgesOnDrag: false,
+            hideNodesOnDrag: false,
+          },
+          physics: {
+            enabled: true,
+            stabilization: {
+              enabled: true,
+              fit: true,
+              iterations: 1000,
+              onlyDynamicEdges: false,
+              updateInterval: 50,
+            },
+          },
+        };
 
+        network = new vis.Network(container, data, options);
 
-                  
-
-                  network = new vis.Network(container, data, options);
-
-                  
-
-                  
-
-                  
-
-
-                  
-                      network.on("stabilizationProgress", function(params) {
-                          document.getElementById('loadingBar').removeAttribute("style");
-                          var maxWidth = 496;
-                          var minWidth = 20;
-                          var widthFactor = params.iterations/params.total;
-                          var width = Math.max(minWidth,maxWidth * widthFactor);
-                          document.getElementById('bar').style.width = width + 'px';
-                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
-                      });
-                      network.once("stabilizationIterationsDone", function() {
-                          document.getElementById('text').innerHTML = '100%';
-                          document.getElementById('bar').style.width = '496px';
-                          document.getElementById('loadingBar').style.opacity = 0;
-                          // really clean the dom element
-                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
-                      });
-                  
-
-                  return network;
-
-              }
-              drawGraph();
-        </script>
-    </body>
+        return network;
+      }
+      drawGraph();
+    </script>
+  </body>
 </html>
