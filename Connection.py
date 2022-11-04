@@ -50,6 +50,14 @@ class Connection(ConnectionInterface):
 
         return path
 
+    # return dict with all links referring to topic
+
+    def init_parents(self, links, topic):
+        parents = {}
+        for link in links:
+            parents[link] = topic
+        return parents
+
     # Bidirectional BFS logic here
     def find_all_connections(self):
 
@@ -91,7 +99,8 @@ class Connection(ConnectionInterface):
                 # Path found in this case, appending to list of completed paths
                 if current_link in second_seen_links:
                     paths.append(
-                        self.generate_path(first_parents, second_parents, current_link)
+                        self.generate_path(
+                            first_parents, second_parents, current_link)
                     )
 
                 # Appending to seen links
@@ -119,7 +128,8 @@ class Connection(ConnectionInterface):
                 if current_link in first_seen_links:
                     # Path found in this case
                     paths.append(
-                        self.generate_path(first_parents, second_parents, current_link)
+                        self.generate_path(
+                            first_parents, second_parents, current_link)
                     )
 
                 # Appending to seen links if necessary
