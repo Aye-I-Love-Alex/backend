@@ -5,7 +5,6 @@ from pyvis.network import Network
 
 app = Flask(__name__, static_folder='graph')
 
-
 @app.route("/", methods=["POST", "GET"])
 def index():
     net = ""
@@ -32,7 +31,8 @@ def index():
                                 element_index == 0
                                 or element_index == len(current_path) - 1
                             ):
-                                graph.add_node(current_path[element_index], color="red")
+                                graph.add_node(
+                                    current_path[element_index], color="red")
                             else:
                                 graph.add_node(current_path[element_index])
 
@@ -61,7 +61,7 @@ def index():
                 net = Network()
                 net.from_nx(graph)
                 net.save_graph("./graph/graph.html")
-                
+
     return render_template("index.html", connection=net)
 
 
