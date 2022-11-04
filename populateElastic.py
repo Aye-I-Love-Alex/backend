@@ -1,6 +1,4 @@
 from elasticsearch import Elasticsearch
-from bs4 import BeautifulSoup
-import os.path
 
 es = Elasticsearch("http://localhost:9200")
 

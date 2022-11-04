@@ -1,250 +1,154 @@
 <html>
-    <head>
-        <meta charset="utf-8">
-        
-            <script src="lib/bindings/utils.js"></script>
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-            
-        
-<center>
-<h1></h1>
-</center>
+  <head>
+    <meta charset="utf-8" />
 
-<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+    <script src="lib/bindings/utils.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css"
+      integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js"
+      integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <center>
+      <h1></h1>
+    </center>
+
+    <!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
 <script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
-          crossorigin="anonymous"
-        />
-        <script
-          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
-          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
-          crossorigin="anonymous"
-        ></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+      crossorigin="anonymous"
+    ></script>
 
+    <center>
+      <h1></h1>
+    </center>
+    <style type="text/css">
+      #mynetwork {
+        width: 100%;
+        height: 500px;
+        background-color: #ffffff;
+        border: 1px solid lightgray;
+        position: relative;
+        float: left;
+      }
+    </style>
+  </head>
 
-        <center>
-          <h1></h1>
-        </center>
-        <style type="text/css">
+  <body>
+    <div class="card" style="width: 100%">
+      <div id="mynetwork" class="card-body"></div>
+    </div>
 
-             #mynetwork {
-                 width: 100%;
-                 height: 500px;
-                 background-color: #ffffff;
-                 border: 1px solid lightgray;
-                 position: relative;
-                 float: left;
-             }
+    <script type="text/javascript">
+      // initialize global variables.
+      var edges;
+      var nodes;
+      var allNodes;
+      var allEdges;
+      var nodeColors;
+      var originalNodes;
+      var network;
+      var container;
+      var options, data;
+      var filter = {
+        item: "",
+        property: "",
+        value: [],
+      };
 
-             
-             #loadingBar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width: 100%;
-                 height: 500px;
-                 background-color:rgba(200,200,200,0.8);
-                 -webkit-transition: all 0.5s ease;
-                 -moz-transition: all 0.5s ease;
-                 -ms-transition: all 0.5s ease;
-                 -o-transition: all 0.5s ease;
-                 transition: all 0.5s ease;
-                 opacity:1;
-             }
+      // This method is responsible for drawing the graph, returns the drawn network
+      function drawGraph() {
+        var container = document.getElementById("mynetwork");
 
-             #bar {
-                 position:absolute;
-                 top:0px;
-                 left:0px;
-                 width:20px;
-                 height:20px;
-                 margin:auto auto auto auto;
-                 border-radius:11px;
-                 border:2px solid rgba(30,30,30,0.05);
-                 background: rgb(0, 173, 246); /* Old browsers */
-                 box-shadow: 2px 0px 4px rgba(0,0,0,0.4);
-             }
+        // parsing and collecting nodes and edges from the python
+        nodes = new vis.DataSet([
+          {
+            color: "#97c2fc",
+            id: "Cincinnati Reds",
+            label: "Cincinnati Reds",
+            shape: "dot",
+            size: 10,
+          },
+          {
+            color: "#97c2fc",
+            id: "Cincinnati",
+            label: "Cincinnati",
+            shape: "dot",
+            size: 10,
+          },
+          {
+            color: "#97c2fc",
+            id: "Charles Manson",
+            label: "Charles Manson",
+            shape: "dot",
+            size: 10,
+          },
+        ]);
+        edges = new vis.DataSet([
+          { Weight: 1, from: "Cincinnati Reds", to: "Cincinnati", width: 1 },
+          { Weight: 1, from: "Cincinnati", to: "Charles Manson", width: 1 },
+        ]);
 
-             #border {
-                 position:absolute;
-                 top:10px;
-                 left:10px;
-                 width:500px;
-                 height:23px;
-                 margin:auto auto auto auto;
-                 box-shadow: 0px 0px 4px rgba(0,0,0,0.2);
-                 border-radius:10px;
-             }
-
-             #text {
-                 position:absolute;
-                 top:8px;
-                 left:530px;
-                 width:30px;
-                 height:50px;
-                 margin:auto auto auto auto;
-                 font-size:22px;
-                 color: #000000;
-             }
-
-             div.outerBorder {
-                 position:relative;
-                 top:400px;
-                 width:600px;
-                 height:44px;
-                 margin:auto auto auto auto;
-                 border:8px solid rgba(0,0,0,0.1);
-                 background: rgb(252,252,252); /* Old browsers */
-                 background: -moz-linear-gradient(top,  rgba(252,252,252,1) 0%, rgba(237,237,237,1) 100%); /* FF3.6+ */
-                 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(252,252,252,1)), color-stop(100%,rgba(237,237,237,1))); /* Chrome,Safari4+ */
-                 background: -webkit-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Chrome10+,Safari5.1+ */
-                 background: -o-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* Opera 11.10+ */
-                 background: -ms-linear-gradient(top,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* IE10+ */
-                 background: linear-gradient(to bottom,  rgba(252,252,252,1) 0%,rgba(237,237,237,1) 100%); /* W3C */
-                 filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfcfc', endColorstr='#ededed',GradientType=0 ); /* IE6-9 */
-                 border-radius:72px;
-                 box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
-             }
-             
-
-             
-
-             
-        </style>
-    </head>
-
-
-    <body>
-        <div class="card" style="width: 100%">
-            
-            
-            <div id="mynetwork" class="card-body"></div>
-        </div>
-
-        
-            <div id="loadingBar">
-              <div class="outerBorder">
-                <div id="text">0%</div>
-                <div id="border">
-                  <div id="bar"></div>
-                </div>
-              </div>
-            </div>
-        
-        
-
-        <script type="text/javascript">
-
-              // initialize global variables.
-              var edges;
-              var nodes;
-              var allNodes;
-              var allEdges;
-              var nodeColors;
-              var originalNodes;
-              var network;
-              var container;
-              var options, data;
-              var filter = {
-                  item : '',
-                  property : '',
-                  value : []
-              };
-
-              
-
-              
-
-              // This method is responsible for drawing the graph, returns the drawn network
-              function drawGraph() {
-                  var container = document.getElementById('mynetwork');
-
-                  
-
-                  // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "red", "id": "Kristina Keneally", "label": "Kristina Keneally", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Democratic Party (United States)", "label": "Democratic Party (United States)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Australian Labor Party", "label": "Australian Labor Party", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Arizona", "label": "Arizona", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Andrew Jackson", "label": "Andrew Jackson", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Barack Obama", "label": "Barack Obama", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "James K. Polk", "label": "James K. Polk", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bob Menendez", "label": "Bob Menendez", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "California State Senate", "label": "California State Senate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jesse Helms", "label": "Jesse Helms", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Governor of Texas", "label": "Governor of Texas", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Robert F. Kennedy", "label": "Robert F. Kennedy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bernie Sanders", "label": "Bernie Sanders", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "First Lady of the United States", "label": "First Lady of the United States", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Franklin D. Roosevelt", "label": "Franklin D. Roosevelt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "California", "label": "California", "shape": "dot", "size": 10}, {"color": "red", "id": "Harrison Ford", "label": "Harrison Ford", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "California State Assembly", "label": "California State Assembly", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chicago", "label": "Chicago", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Air Force One (movie)", "label": "Air Force One (movie)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Indiana Jones", "label": "Indiana Jones", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Apocalypse Now", "label": "Apocalypse Now", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Blade Runner", "label": "Blade Runner", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Hillary Clinton", "label": "Hillary Clinton", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Illinois", "label": "Illinois", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "38th G8 summit", "label": "38th G8 summit", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Canberra", "label": "Canberra", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Bill Clinton", "label": "Bill Clinton", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "President of the United States", "label": "President of the United States", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Americans", "label": "Americans", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Martin Van Buren", "label": "Martin Van Buren", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ronald Reagan", "label": "Ronald Reagan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Chuck Schumer", "label": "Chuck Schumer", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jim Clyburn", "label": "Jim Clyburn", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mark Warner", "label": "Mark Warner", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Dick Durbin", "label": "Dick Durbin", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Tim Kaine", "label": "Tim Kaine", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United States", "label": "United States", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Raiders of the Lost Ark", "label": "Raiders of the Lost Ark", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Indiana Jones (film)", "label": "Indiana Jones (film)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Greece", "label": "Greece", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Andrew Fisher", "label": "Andrew Fisher", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Australian Young Labor", "label": "Australian Young Labor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Australia", "label": "Australia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "24 June", "label": "24 June", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Royal Australian Navy", "label": "Royal Australian Navy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "China", "label": "China", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Charles Sturt", "label": "Charles Sturt", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "East Timor", "label": "East Timor", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Japan", "label": "Japan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Lebanon", "label": "Lebanon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "death penalty", "label": "death penalty", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "List of countries by area", "label": "List of countries by area", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "New Zealand", "label": "New Zealand", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Norway", "label": "Norway", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Philippines", "label": "Philippines", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Austria", "label": "Austria", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Israel", "label": "Israel", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mexico", "label": "Mexico", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Brisbane", "label": "Brisbane", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "capital city", "label": "capital city", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Joseph Cook", "label": "Joseph Cook", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "London", "label": "London", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "climate", "label": "climate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United Kingdom", "label": "United Kingdom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pakistan", "label": "Pakistan", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "California State Legislature", "label": "California State Legislature", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Eleni Kounalakis", "label": "Eleni Kounalakis", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "England", "label": "England", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Europe", "label": "Europe", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "English language", "label": "English language", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Catholicism", "label": "Catholicism", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Spain", "label": "Spain", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Germany", "label": "Germany", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Czech Republic", "label": "Czech Republic", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Joe Biden", "label": "Joe Biden", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Kamala Harris", "label": "Kamala Harris", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Jerry Brown", "label": "Jerry Brown", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Gavin Newsom", "label": "Gavin Newsom", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "San Francisco", "label": "San Francisco", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Italy", "label": "Italy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Harry Reid", "label": "Harry Reid", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nevada", "label": "Nevada", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Mexican-American War", "label": "Mexican-American War", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Texas", "label": "Texas", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Indonesia", "label": "Indonesia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Malaysia", "label": "Malaysia", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "May 10", "label": "May 10", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Oregon", "label": "Oregon", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Republican Party (United States)", "label": "Republican Party (United States)", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United States Senate", "label": "United States Senate", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Pacific Ocean", "label": "Pacific Ocean", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Nancy Pelosi", "label": "Nancy Pelosi", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "New Zealanders", "label": "New Zealanders", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Rick Perry", "label": "Rick Perry", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "United States Senator", "label": "United States Senator", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Vice President of the United States", "label": "Vice President of the United States", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Ben Chifley", "label": "Ben Chifley", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Frank Forde", "label": "Frank Forde", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Queensland", "label": "Queensland", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "economy", "label": "economy", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "economics", "label": "economics", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "science fiction", "label": "science fiction", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "cyberpunk", "label": "cyberpunk", "shape": "dot", "size": 10}]);
-                  edges = new vis.DataSet([{"from": "Kristina Keneally", "to": "Democratic Party (United States)", "width": 1}, {"from": "Kristina Keneally", "to": "Australian Labor Party", "width": 1}, {"from": "Democratic Party (United States)", "to": "Arizona", "width": 1}, {"from": "Democratic Party (United States)", "to": "Andrew Jackson", "width": 1}, {"from": "Democratic Party (United States)", "to": "Barack Obama", "width": 1}, {"from": "Democratic Party (United States)", "to": "James K. Polk", "width": 1}, {"from": "Democratic Party (United States)", "to": "Bob Menendez", "width": 1}, {"from": "Democratic Party (United States)", "to": "California State Senate", "width": 1}, {"from": "Democratic Party (United States)", "to": "Jesse Helms", "width": 1}, {"from": "Democratic Party (United States)", "to": "Governor of Texas", "width": 1}, {"from": "Democratic Party (United States)", "to": "Robert F. Kennedy", "width": 1}, {"from": "Democratic Party (United States)", "to": "Bernie Sanders", "width": 1}, {"from": "Democratic Party (United States)", "to": "First Lady of the United States", "width": 1}, {"from": "Democratic Party (United States)", "to": "Franklin D. Roosevelt", "width": 1}, {"from": "Arizona", "to": "California", "width": 1}, {"color": "red", "from": "California", "to": "Harrison Ford", "width": 1}, {"from": "California", "to": "California State Assembly", "width": 1}, {"color": "red", "from": "Harrison Ford", "to": "Chicago", "width": 1}, {"color": "red", "from": "Harrison Ford", "to": "Air Force One (movie)", "width": 1}, {"color": "red", "from": "Harrison Ford", "to": "Indiana Jones", "width": 1}, {"color": "red", "from": "Harrison Ford", "to": "Apocalypse Now", "width": 1}, {"color": "red", "from": "Harrison Ford", "to": "Blade Runner", "width": 1}, {"from": "Andrew Jackson", "to": "First Lady of the United States", "width": 1}, {"from": "First Lady of the United States", "to": "Hillary Clinton", "width": 1}, {"from": "Hillary Clinton", "to": "Illinois", "width": 1}, {"from": "Illinois", "to": "Chicago", "width": 1}, {"from": "Chicago", "to": "38th G8 summit", "width": 1}, {"from": "Chicago", "to": "Canberra", "width": 1}, {"from": "Barack Obama", "to": "Bill Clinton", "width": 1}, {"from": "Barack Obama", "to": "38th G8 summit", "width": 1}, {"from": "Bill Clinton", "to": "Air Force One (movie)", "width": 1}, {"from": "Air Force One (movie)", "to": "President of the United States", "width": 1}, {"from": "Air Force One (movie)", "to": "Americans", "width": 1}, {"from": "James K. Polk", "to": "Martin Van Buren", "width": 1}, {"from": "Martin Van Buren", "to": "President of the United States", "width": 1}, {"from": "President of the United States", "to": "Ronald Reagan", "width": 1}, {"from": "Bob Menendez", "to": "Chuck Schumer", "width": 1}, {"from": "Bob Menendez", "to": "Jim Clyburn", "width": 1}, {"from": "Chuck Schumer", "to": "Mark Warner", "width": 1}, {"from": "Chuck Schumer", "to": "Dick Durbin", "width": 1}, {"from": "Mark Warner", "to": "Tim Kaine", "width": 1}, {"from": "Tim Kaine", "to": "United States", "width": 1}, {"from": "United States", "to": "Raiders of the Lost Ark", "width": 1}, {"from": "Raiders of the Lost Ark", "to": "Indiana Jones (film)", "width": 1}, {"from": "Raiders of the Lost Ark", "to": "Greece", "width": 1}, {"from": "Indiana Jones (film)", "to": "Indiana Jones", "width": 1}, {"from": "Australian Labor Party", "to": "Andrew Fisher", "width": 1}, {"from": "Australian Labor Party", "to": "Australian Young Labor", "width": 1}, {"from": "Andrew Fisher", "to": "Australia", "width": 1}, {"from": "Andrew Fisher", "to": "24 June", "width": 1}, {"from": "Australia", "to": "Americans", "width": 1}, {"from": "Australia", "to": "Royal Australian Navy", "width": 1}, {"from": "Australia", "to": "China", "width": 1}, {"from": "Australia", "to": "Charles Sturt", "width": 1}, {"from": "Australia", "to": "East Timor", "width": 1}, {"from": "Australia", "to": "Japan", "width": 1}, {"from": "Australia", "to": "Lebanon", "width": 1}, {"from": "Australia", "to": "death penalty", "width": 1}, {"from": "Australia", "to": "List of countries by area", "width": 1}, {"from": "Australia", "to": "New Zealand", "width": 1}, {"from": "Americans", "to": "Norway", "width": 1}, {"from": "Americans", "to": "Philippines", "width": 1}, {"from": "Americans", "to": "Austria", "width": 1}, {"from": "Americans", "to": "Israel", "width": 1}, {"from": "Americans", "to": "Mexico", "width": 1}, {"from": "Royal Australian Navy", "to": "Brisbane", "width": 1}, {"from": "Brisbane", "to": "capital city", "width": 1}, {"from": "capital city", "to": "China", "width": 1}, {"from": "24 June", "to": "Joseph Cook", "width": 1}, {"from": "Joseph Cook", "to": "London", "width": 1}, {"from": "London", "to": "climate", "width": 1}, {"from": "climate", "to": "United Kingdom", "width": 1}, {"from": "United Kingdom", "to": "Pakistan", "width": 1}, {"from": "Pakistan", "to": "Norway", "width": 1}, {"from": "California State Senate", "to": "California State Legislature", "width": 1}, {"from": "California State Senate", "to": "Eleni Kounalakis", "width": 1}, {"from": "California State Legislature", "to": "California State Assembly", "width": 1}, {"from": "Charles Sturt", "to": "England", "width": 1}, {"from": "England", "to": "Europe", "width": 1}, {"from": "England", "to": "English language", "width": 1}, {"from": "Europe", "to": "Catholicism", "width": 1}, {"from": "Europe", "to": "Greece", "width": 1}, {"from": "Europe", "to": "Spain", "width": 1}, {"from": "Catholicism", "to": "Spain", "width": 1}, {"from": "Spain", "to": "Philippines", "width": 1}, {"from": "English language", "to": "Germany", "width": 1}, {"from": "Germany", "to": "Czech Republic", "width": 1}, {"from": "Czech Republic", "to": "Austria", "width": 1}, {"from": "Jesse Helms", "to": "Joe Biden", "width": 1}, {"from": "Joe Biden", "to": "Kamala Harris", "width": 1}, {"from": "Kamala Harris", "to": "Jerry Brown", "width": 1}, {"from": "Jerry Brown", "to": "Gavin Newsom", "width": 1}, {"from": "Jerry Brown", "to": "San Francisco", "width": 1}, {"from": "Gavin Newsom", "to": "Eleni Kounalakis", "width": 1}, {"from": "Greece", "to": "Italy", "width": 1}, {"from": "Italy", "to": "Israel", "width": 1}, {"from": "Israel", "to": "Lebanon", "width": 1}, {"from": "Dick Durbin", "to": "Harry Reid", "width": 1}, {"from": "Harry Reid", "to": "Nevada", "width": 1}, {"from": "Nevada", "to": "Mexican-American War", "width": 1}, {"from": "Mexican-American War", "to": "Mexico", "width": 1}, {"from": "Mexico", "to": "Texas", "width": 1}, {"from": "East Timor", "to": "Indonesia", "width": 1}, {"from": "Indonesia", "to": "Japan", "width": 1}, {"from": "death penalty", "to": "Malaysia", "width": 1}, {"from": "Malaysia", "to": "May 10", "width": 1}, {"from": "May 10", "to": "Apocalypse Now", "width": 1}, {"from": "May 10", "to": "Oregon", "width": 1}, {"from": "Ronald Reagan", "to": "Republican Party (United States)", "width": 1}, {"from": "Ronald Reagan", "to": "United States Senate", "width": 1}, {"from": "Republican Party (United States)", "to": "Oregon", "width": 1}, {"from": "Oregon", "to": "Pacific Ocean", "width": 1}, {"from": "Jim Clyburn", "to": "Nancy Pelosi", "width": 1}, {"from": "Nancy Pelosi", "to": "San Francisco", "width": 1}, {"from": "List of countries by area", "to": "New Zealand", "width": 1}, {"from": "New Zealand", "to": "New Zealanders", "width": 1}, {"from": "Governor of Texas", "to": "Rick Perry", "width": 1}, {"from": "Rick Perry", "to": "Texas", "width": 1}, {"from": "New Zealanders", "to": "Pacific Ocean", "width": 1}, {"from": "Robert F. Kennedy", "to": "United States Senator", "width": 1}, {"from": "United States Senator", "to": "Vice President of the United States", "width": 1}, {"from": "Vice President of the United States", "to": "United States Senate", "width": 1}, {"from": "Australian Young Labor", "to": "Ben Chifley", "width": 1}, {"from": "Australian Young Labor", "to": "Canberra", "width": 1}, {"from": "Ben Chifley", "to": "Frank Forde", "width": 1}, {"from": "Frank Forde", "to": "Queensland", "width": 1}, {"from": "Queensland", "to": "economy", "width": 1}, {"from": "economy", "to": "economics", "width": 1}, {"from": "economics", "to": "science fiction", "width": 1}, {"from": "science fiction", "to": "cyberpunk", "width": 1}, {"from": "cyberpunk", "to": "Blade Runner", "width": 1}]);
-
-                  nodeColors = {};
-                  allNodes = nodes.get({ returnType: "Object" });
-                  for (nodeId in allNodes) {
-                    nodeColors[nodeId] = allNodes[nodeId].color;
-                  }
-                  allEdges = edges.get({ returnType: "Object" });
-                  // adding nodes and edges to the graph
-                  data = {nodes: nodes, edges: edges};
-
-                  var options = {
-    "configure": {
-        "enabled": false
-    },
-    "edges": {
-        "color": {
-            "inherit": true
-        },
-        "smooth": {
-            "enabled": true,
-            "type": "dynamic"
+        nodeColors = {};
+        allNodes = nodes.get({ returnType: "Object" });
+        for (nodeId in allNodes) {
+          nodeColors[nodeId] = allNodes[nodeId].color;
         }
-    },
-    "interaction": {
-        "dragNodes": true,
-        "hideEdgesOnDrag": false,
-        "hideNodesOnDrag": false
-    },
-    "physics": {
-        "enabled": true,
-        "stabilization": {
-            "enabled": true,
-            "fit": true,
-            "iterations": 1000,
-            "onlyDynamicEdges": false,
-            "updateInterval": 50
-        }
-    }
-};
+        allEdges = edges.get({ returnType: "Object" });
+        // adding nodes and edges to the graph
+        data = { nodes: nodes, edges: edges };
 
-                  
+        var options = {
+          configure: {
+            enabled: false,
+          },
+          edges: {
+            color: {
+              inherit: true,
+            },
+            smooth: {
+              enabled: true,
+              type: "dynamic",
+            },
+          },
+          interaction: {
+            dragNodes: true,
+            hideEdgesOnDrag: false,
+            hideNodesOnDrag: false,
+          },
+          physics: {
+            enabled: true,
+            stabilization: {
+              enabled: true,
+              fit: true,
+              iterations: 1000,
+              onlyDynamicEdges: false,
+              updateInterval: 50,
+            },
+          },
+        };
 
+        network = new vis.Network(container, data, options);
 
-                  
-
-                  network = new vis.Network(container, data, options);
-
-                  
-
-                  
-
-                  
-
-
-                  
-                      network.on("stabilizationProgress", function(params) {
-                          document.getElementById('loadingBar').removeAttribute("style");
-                          var maxWidth = 496;
-                          var minWidth = 20;
-                          var widthFactor = params.iterations/params.total;
-                          var width = Math.max(minWidth,maxWidth * widthFactor);
-                          document.getElementById('bar').style.width = width + 'px';
-                          document.getElementById('text').innerHTML = Math.round(widthFactor*100) + '%';
-                      });
-                      network.once("stabilizationIterationsDone", function() {
-                          document.getElementById('text').innerHTML = '100%';
-                          document.getElementById('bar').style.width = '496px';
-                          document.getElementById('loadingBar').style.opacity = 0;
-                          // really clean the dom element
-                          setTimeout(function () {document.getElementById('loadingBar').style.display = 'none';}, 500);
-                      });
-                  
-
-                  return network;
-
-              }
-              drawGraph();
-        </script>
-    </body>
+        return network;
+      }
+      drawGraph();
+    </script>
+  </body>
 </html>

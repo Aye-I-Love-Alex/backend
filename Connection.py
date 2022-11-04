@@ -1,7 +1,5 @@
 from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
-
-
 class Connection(ConnectionInterface):
 
     es = Elasticsearch("http://localhost:9200")
