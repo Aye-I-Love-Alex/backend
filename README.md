@@ -22,7 +22,6 @@ If ElasticSearch has been run in the past:
 ## Running the Frontend
 ### Requirements
 * ElasticSearch and Docker installed and functional
-* BeautifulSoup python library installed
 * All python packages from requirements.txt installed in a virtual environment i.e. venv.
 (Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.)
 ### Steps
