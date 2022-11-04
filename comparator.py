@@ -2,7 +2,6 @@ from Connection import Connection
 from flask import Flask, render_template, request, send_file
 import networkx as nx
 from pyvis.network import Network
-import pandas as pd
 
 app = Flask(__name__, static_folder='graph')
 
