@@ -24,7 +24,8 @@ If ElasticSearch has been run in the past:
 * ElasticSearch and Docker installed and functional
 * All python packages from requirements.txt installed in a virtual environment i.e. venv.
 (Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.)
+```pip install -r requirements.txt```
 ### Steps
-1. cd concept-conector
-2. flask --app comparator run
+1. ```cd concept-conector```
+2. ```flask --app comparator run```
 
