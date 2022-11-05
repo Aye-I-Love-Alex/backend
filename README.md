@@ -5,8 +5,8 @@ Its recommended that you install all python dependencies in a virtual environmen
 ### Virtualenv Insturctions
 1. ```pip install virtualenv```
 2. ```virtualenv 5914```
-3. ```cd 5914``
-4. ```git clone concept-connector (using SSH or HTTPS)``
+3. ```cd 5914```
+4. ```git clone concept-connector``` (using SSH or HTTPS)
 5.  ```cd concept-conector```
 6.  ```pip install -r requirements.txt```
 
@@ -34,6 +34,7 @@ If ElasticSearch has been run in the past:
 ## Running the Frontend
 ### Requirements
 * ElasticSearch and Docker installed and functional
-* All python packages from requirements.txt installed in a virtual environment i.e. venv.\n
+* All python packages from requirements.txt installed in a virtual environment i.e. venv.
+
 ```flask --app comparator run```
 
