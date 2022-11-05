@@ -1,3 +1,15 @@
+
+## Setting up the Development Environment
+Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.
+
+### Virtualenv Insturctions
+1. ```pip install virtualenv```
+2. ```virtualenv 5914```
+3. ```cd 5914``
+4. ```git clone concept-connector (using SSH or HTTPS)``
+5.  ```cd concept-conector```
+6.  ```pip install -r requirements.txt```
+
 ## Running ElasticSearch:
 If running for first time:
 1. Download ElasticSearch [here](https://www.elastic.co/guide/en/elasticsearch/reference/7.17/getting-started.html#run-elasticsearch) and Docker [here](https://www.docker.com/products/docker-desktop/)
@@ -22,10 +34,6 @@ If ElasticSearch has been run in the past:
 ## Running the Frontend
 ### Requirements
 * ElasticSearch and Docker installed and functional
-* All python packages from requirements.txt installed in a virtual environment i.e. venv.
-(Its recommended that you install all python dependencies in a virtual environment and then clone inside that environment.)
-```pip install -r requirements.txt```
-### Steps
-1. ```cd concept-conector```
-2. ```flask --app comparator run```
+* All python packages from requirements.txt installed in a virtual environment i.e. venv.\n
+```flask --app comparator run```
 
