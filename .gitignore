@@ -134,6 +134,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Exclude wikipedia data dump
 simplewiki-latest-pages-articles-multistream.xml
 
+# Exclude MacOS index files
 .DS-Store
+
+# Exclude python generated graph.html
+graph/graph.html
