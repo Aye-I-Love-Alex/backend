@@ -38,7 +38,11 @@
             {% if connection != "" %}
                 <iframe style="height: 525px; width: 525px; display: block; margin: auto;" src="{{ url_for('show_graph') }}"></iframe>
             {% endif %}
-            
+
+            {% for message in messages %}
+                <p style="color:red">{{ message }}</p>
+            {% endfor %}
+
         </main>
 
         <footer class="footer">
