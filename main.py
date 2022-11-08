@@ -15,8 +15,9 @@ def index():
     if request.method == "POST":
         first = request.form.get("firstword")
         second = request.form.get("secondword")
+        intense = request.form.get("intensity")
         if len(first) > 0 and len(second) > 0 and first.lower() != second.lower():
-            connection = Connection(first, second)
+            connection = Connection(first, second, intense)
             path, messages = connection.find_all_connections()
             if len(path) > 0:
                 graph = nx.Graph()

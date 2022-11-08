@@ -1,5 +1,6 @@
 from elasticsearch import Elasticsearch
 from ConnectionInterface import ConnectionInterface
+import math
 
 MAX_ITER = 1000
 
@@ -19,7 +20,9 @@ class Connection(ConnectionInterface):
     result_tree = {}
     error_messages = []
 
-    def __init__(self, first_topic, second_topic):
+    intensity = 0
+
+    def __init__(self, first_topic, second_topic, intensity):        
         self.error_messages.clear()
         self.first_page = self.es.search(index="wikipedia_pages", body={"query": {"match": {"title": first_topic}}})
         if len(self.first_page["hits"]["hits"]) > 0:
@@ -36,6 +39,9 @@ class Connection(ConnectionInterface):
         else:
             # no results in database for term
             self.error_messages.append('"' + second_topic + '" yielded no results in simple Wikipedia.\n')
+        
+        self.intensity = float(intensity) / 100
+        
 
     # Generating path when BFS finds a path
     def generate_path(self, first_parents, second_parents, common):
@@ -72,18 +78,35 @@ class Connection(ConnectionInterface):
         first_topic_links = []
         first_parents = {self.first_topic: None}
         first_seen_links = {self.first_topic}
-        for link in self.first_links:
+
+        # It is necessary to separately track the links inserted from the link index. Otherwise, less links than possible will be expanded if the
+        # link is in the parent dictionary
+        links_to_expand = math.ceil(self.intensity * len(self.first_links))
+        print('links to expand: ' + str(links_to_expand))
+        link_index = 0
+        links_inserted = 0
+        while links_inserted < links_to_expand and link_index < len(self.first_links):
+            link = self.first_links[link_index]
             if link not in first_parents:
                 first_topic_links.append(link)
                 first_parents[link] = self.first_topic
+                links_inserted += 1
+            link_index += 1
 
         second_topic_links = []
         second_parents = {self.second_topic: None}
         second_seen_links = {self.second_topic}
-        for link in self.second_links:
+
+        links_to_expand = math.ceil(self.intensity * len(self.second_links))
+        link_index = 0
+        links_inserted = 0
+        while links_inserted < links_to_expand and link_index < len(self.second_links):
+            link = self.second_links[link_index]
             if link not in second_parents:
                 second_topic_links.append(link)
                 second_parents[link] = self.second_topic
+                links_inserted += 1
+            link_index += 1
 
         # Initialize iteration counter
         current_iter = 0
@@ -111,10 +134,15 @@ class Connection(ConnectionInterface):
                     first_seen_links.add(current_link)
                     if len(result["hits"]["hits"]) > 0:
                         result_links = result["hits"]["hits"][0]["_source"]["links"]
-                        for link in result_links:
+                        links_to_expand = math.ceil(self.intensity * len(result_links))
+                        link_index = 0
+                        links_inserted = 0
+                        while links_inserted < links_to_expand and link_index < len(result_links):
                             if link not in first_parents:
                                 first_topic_links.append(link)
                                 first_parents[link] = current_link
+                                links_inserted += 1
+                            link_index += 1
 
             # pop off queue of links to explore
             if len(second_topic_links) != 0:
@@ -133,10 +161,15 @@ class Connection(ConnectionInterface):
                     second_seen_links.add(current_link)
                     if len(result["hits"]["hits"]) > 0:
                         result_links = result["hits"]["hits"][0]["_source"]["links"]
-                        for link in result_links:
+                        links_to_expand = math.ceil(self.intensity * len(result_links))
+                        link_index = 0
+                        links_inserted = 0
+                        while links_inserted < links_to_expand and link_index < len(result_links):
                             if link not in second_parents:
                                 second_topic_links.append(link)
                                 second_parents[link] = current_link
+                                links_inserted += 1
+                            link_index += 1
 
             current_iter += 1
 

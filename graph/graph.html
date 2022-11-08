@@ -88,8 +88,8 @@
                   
 
                   // parsing and collecting nodes and edges from the python
-                  nodes = new vis.DataSet([{"color": "#97c2fc", "id": "Cincinnati Reds", "label": "Cincinnati Reds", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Cincinnati", "label": "Cincinnati", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Charles Manson", "label": "Charles Manson", "shape": "dot", "size": 10}]);
-                  edges = new vis.DataSet([{"Weight": 1, "from": "Cincinnati Reds", "to": "Cincinnati", "width": 1}, {"Weight": 1, "from": "Cincinnati", "to": "Charles Manson", "width": 1}]);
+                  nodes = new vis.DataSet([{"color": "red", "id": "American football", "label": "American football", "shape": "dot", "size": 10}, {"color": "red", "id": "Chad Johnson", "label": "Chad Johnson", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "Association football", "label": "Association football", "shape": "dot", "size": 10}, {"color": "#97c2fc", "id": "List of National Football League season receiving yards leaders", "label": "List of National Football League season receiving yards leaders", "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"color": "red", "from": "American football", "to": "Chad Johnson", "width": 1}, {"from": "American football", "to": "Association football", "width": 1}, {"color": "red", "from": "Chad Johnson", "to": "List of National Football League season receiving yards leaders", "width": 1}, {"from": "Association football", "to": "List of National Football League season receiving yards leaders", "width": 1}]);
 
                   nodeColors = {};
                   allNodes = nodes.get({ returnType: "Object" });
