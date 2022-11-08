@@ -112,11 +112,13 @@ class Connection(ConnectionInterface):
         # Initialize iteration counter
         current_iter = 0
 
+        valid_max_iter = 1000 if not max_iter.isnumeric() else int(max_iter)
+
         # Only continuing while there are still links in both topics and the maximum number of iterations
         # has not been reached yet
         while (
             len(first_topic_links) != 0 or len(second_topic_links) != 0
-        ) and current_iter < (1000 if not max_iter.isnumeric() else int(max_iter)):
+        ) and current_iter < valid_max_iter:
 
             # pop off queue of links to explore
             if len(first_topic_links) != 0:
