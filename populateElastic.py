@@ -4,10 +4,11 @@ import os.path
 
 es = Elasticsearch("http://localhost:9200")
 
-result = es.search(
-    index="wikipedia_pages", body={"query": {"match": {"title": "ohio"}}}
-)
-print(result["hits"]["hits"][0]["_source"])
+# result = es.get(
+#     index="wikipedia_pages", id=1
+# )
+# print(result['found'])
+# print(result['_source'])
 # test_topics = [
 #     "Cincinnati Reds",
 #     "World Series",
@@ -48,8 +49,8 @@ print(result["hits"]["hits"][0]["_source"])
 # mappings = {
 #     "properties": {
 #         "title": {"type": "text", "analyzer": "english"},
-#         "full_text": {"type": "text", "analyzer": "standard"},
 #         "links": {"type": "text", "analyzer": "standard"},
+#         "incoming_links": {"type": "integer"}
 #     }
 # }
 # es.indices.create(index="wikipedia_pages", mappings=mappings)
