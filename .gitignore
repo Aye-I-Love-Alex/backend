@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# XML files
+*.xml
+
 # VSCode Files
 .vscode/
 
@@ -133,3 +136,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+.simplewiki-latest-pages-articles-multistream.xml

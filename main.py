@@ -4,7 +4,7 @@ import networkx as nx
 from pyvis.network import Network
 import pandas as pd
 
-app = Flask(__name__, static_folder='graph')
+app = Flask(__name__, static_folder="graph")
 GRAPH_LOCATION = "./graph/graph.html"
 
 
@@ -15,8 +15,9 @@ def index():
     if request.method == "POST":
         first = request.form.get("firstword")
         second = request.form.get("secondword")
+        intense = request.form.get("intensity")
         if len(first) > 0 and len(second) > 0 and first.lower() != second.lower():
-            connection = Connection(first, second)
+            connection = Connection(first, second, intense)
             path, messages = connection.find_all_connections()
             if len(path) > 0:
                 graph = nx.Graph()
@@ -67,9 +68,9 @@ def index():
                 with open(GRAPH_LOCATION, "w+") as out:
                     out.write(net.html)
         elif first.lower() == second.lower() and len(first) + len(second) > 0:
-            messages.append('Please enter two different terms.')
+            messages.append("Please enter two different terms.")
         elif not (len(first) == 0 and len(second) == 0):
-            messages.append('Please enter two terms.')
+            messages.append("Please enter two terms.")
 
     return render_template("index.html", connection=net, messages=messages)
 
