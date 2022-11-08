@@ -7,9 +7,9 @@ from bs4 import BeautifulSoup
 
 es = Elasticsearch("http://localhost:9200")
 
-#Attempt with wikipedia data dump
-#Open simple wikipedia data dump
-with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') as file:
+# Attempt with wikipedia data dump
+# Open simple wikipedia data dump
+with open("simplewiki-latest-pages-articles-multistream.xml", encoding="utf-8") as file:
     title = ""
     links = []
     start_time = time.time()
@@ -40,11 +40,11 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
                     incoming_links[link] += 1
                 else:
                     incoming_links[link] = 1
-            
+
             if title not in incoming_links:
                 incoming_links[title] = 0
 
-            beg = {"index": {"_index": 'wikipedia_pages', "_id": title}}
+            beg = {"index": {"_index": "wikipedia_pages", "_id": title}}
             page = {"title": title, "links": links, "incoming_links": 0}
             pages_to_store[title] = []
             pages_to_store[title].append(beg)
@@ -57,7 +57,7 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
         if end_time - start_time > 10.0:
             print("\nPages read: " + str(pages_parsed) + "\n")
             start_time = time.time()
-    
+
     print("***Initial parsing finished***")
     print()
     num_pages = 0
@@ -66,7 +66,7 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
     pages_parsed = 0
     for title, page in pages_to_store.items():
         pages_parsed += 1
-        
+
         # Getting only relevant info
         # First element is just the newline separated junk Elastic makes us have
         es_page = page[1]
@@ -74,28 +74,30 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
         # Incoming numbs stores the number of incoming links, while ordered links stores the links corresponding to these incoming links in an ordered fashion
         incoming_numbs = []
         ordered_links = []
-        for link in es_page['links']:
+        for link in es_page["links"]:
             # Ensuring the link actually has a page on Simple Wikipedia
             if link in pages_to_store:
                 current_inc = incoming_links[link]
                 index = 0
-                while index < len(incoming_numbs) and current_inc >= incoming_numbs[index]:
+                while (
+                    index < len(incoming_numbs) and current_inc >= incoming_numbs[index]
+                ):
                     index += 1
                 incoming_numbs.insert(index, current_inc)
                 ordered_links.insert(index, link)
-     
+
         # Adding newline header stuff first
         finished_pages.append(page[0])
 
         # Adding actual page next
-        es_page['links'] = ordered_links
-        es_page['incoming_links'] = incoming_links[title]
+        es_page["links"] = ordered_links
+        es_page["incoming_links"] = incoming_links[title]
         finished_pages.append(es_page)
 
         num_pages += 1
 
     if num_pages == 100:
-        es.bulk(index="wikipedia_pages", operations=pages_to_store, request_timeout = 120)
+        es.bulk(index="wikipedia_pages", operations=pages_to_store, request_timeout=120)
         num_pages = 0
         pages_to_store = []
 
@@ -104,7 +106,6 @@ with open('simplewiki-latest-pages-articles-multistream.xml', encoding='utf-8') 
     if end_time - start_time > 10.0:
         print("\nPages read: " + str(pages_parsed) + "\n")
         start_time = time.time()
-
 
     # pages_to_store = []
     # num_pages = 0
