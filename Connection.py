@@ -79,34 +79,30 @@ class Connection(ConnectionInterface):
         first_parents = {self.first_topic: None}
         first_seen_links = {self.first_topic}
 
-        # It is necessary to separately track the links inserted from the link index. Otherwise, less links than possible will be expanded if the
-        # link is in the parent dictionary
         links_to_expand = math.ceil(self.intensity * len(self.first_links))
-        print('links to expand: ' + str(links_to_expand))
-        link_index = 0
         links_inserted = 0
-        while links_inserted < links_to_expand and link_index < len(self.first_links):
-            link = self.first_links[link_index]
+        for link in self.first_links:
             if link not in first_parents:
                 first_topic_links.append(link)
                 first_parents[link] = self.first_topic
                 links_inserted += 1
-            link_index += 1
+            if links_inserted == links_to_expand:
+                break
 
         second_topic_links = []
         second_parents = {self.second_topic: None}
         second_seen_links = {self.second_topic}
-
+        
         links_to_expand = math.ceil(self.intensity * len(self.second_links))
-        link_index = 0
         links_inserted = 0
-        while links_inserted < links_to_expand and link_index < len(self.second_links):
-            link = self.second_links[link_index]
+        for link in self.second_links:
             if link not in second_parents:
                 second_topic_links.append(link)
                 second_parents[link] = self.second_topic
                 links_inserted += 1
-            link_index += 1
+
+            if links_inserted == links_to_expand:
+                break
 
         # Initialize iteration counter
         current_iter = 0
@@ -135,14 +131,15 @@ class Connection(ConnectionInterface):
                     if len(result["hits"]["hits"]) > 0:
                         result_links = result["hits"]["hits"][0]["_source"]["links"]
                         links_to_expand = math.ceil(self.intensity * len(result_links))
-                        link_index = 0
                         links_inserted = 0
-                        while links_inserted < links_to_expand and link_index < len(result_links):
+                        for link in result_links:
                             if link not in first_parents:
                                 first_topic_links.append(link)
                                 first_parents[link] = current_link
                                 links_inserted += 1
-                            link_index += 1
+
+                            if links_inserted == links_to_expand:
+                                break
 
             # pop off queue of links to explore
             if len(second_topic_links) != 0:
@@ -162,14 +159,15 @@ class Connection(ConnectionInterface):
                     if len(result["hits"]["hits"]) > 0:
                         result_links = result["hits"]["hits"][0]["_source"]["links"]
                         links_to_expand = math.ceil(self.intensity * len(result_links))
-                        link_index = 0
                         links_inserted = 0
-                        while links_inserted < links_to_expand and link_index < len(result_links):
+                        for link in result_links:
                             if link not in second_parents:
                                 second_topic_links.append(link)
                                 second_parents[link] = current_link
                                 links_inserted += 1
-                            link_index += 1
+                            
+                            if links_inserted == links_to_expand:
+                                break
 
             current_iter += 1
 
