@@ -1,6 +1,6 @@
-elasticsearch
-bs4
-pymediawiki
-flask
-networkx
-pyvis
+elasticsearch==8.4.3
+bs4==0.0.1
+pymediawiki==0.7.2
+flask==2.2.2
+networkx==2.8.8
+pyvis==0.3.0
