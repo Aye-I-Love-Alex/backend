@@ -3,7 +3,8 @@ from flask import Flask, render_template, request, send_file
 import networkx as nx
 from pyvis.network import Network
 
-app = Flask(__name__, static_folder='graph')
+app = Flask(__name__, static_folder="graph")
+GRAPH_LOCATION = "./graph/graph.html"
 
 def get_word(word_index):
     return request.form.get(word_index)
@@ -63,24 +64,33 @@ def build_network(path):
 @app.route("/", methods=["POST", "GET"])
 def index():
     net = ""
+    messages = []
     if request.method == "POST":
-        first = get_word("firstword")
-        second = get_word("secondword")
-        if len(first) > 0 and len(second) > 0:
-            connection = Connection(first, second)
-            path = connection.find_all_connections()
+        first = request.form.get("firstword")
+        second = request.form.get("secondword")
+        max_iterations = request.form.get("maximumiterations")
+        intense = request.form.get("intensity")
+        if len(first) > 0 and len(second) > 0 and first.lower() != second.lower():
+            connection = Connection(first, second, intense)
+            path, messages = connection.find_all_connections(max_iter = max_iterations)
             if len(path) > 0:
                 graph = build_network(path)
                 net = Network()
                 net.from_nx(graph)
-                net.save_graph("./graph/graph.html")
-                
-    return render_template("index.html", connection=net)
+                net.html = net.generate_html()
+                with open(GRAPH_LOCATION, "w+") as out:
+                    out.write(net.html)
+        elif first.lower() == second.lower() and len(first) + len(second) > 0:
+            messages.append("Please enter two different terms.")
+        elif not (len(first) == 0 and len(second) == 0):
+            messages.append("Please enter two terms.")
+
+    return render_template("index.html", connection=net, messages=messages)
 
 
 @app.route("/graph/graph.html")
 def show_graph():
-    return send_file("./graph/graph.html")
+    return send_file(GRAPH_LOCATION)
 
 
 if __name__ == "__main__":
