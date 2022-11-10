@@ -48,14 +48,6 @@ class Connection(ConnectionInterface):
 
         return path
 
-    # return dict with all links referring to topic
-
-    def init_parents(self, links, topic):
-        parents = {}
-        for link in links:
-            parents[link] = topic
-        return parents
-
     # Bidirectional BFS logic here
     def find_all_connections(self):
 
