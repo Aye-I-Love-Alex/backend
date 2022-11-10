@@ -29,6 +29,7 @@ If ElasticSearch has been run in the past:
 2. Unzip the compressed datadump with a software like 7zip or winrar, will be 1 GB uncompressed
 3. Place the file in the home directory(\concept-connector)
 4. Run the following terminal command in the home directory(\concept-connector) % py WikiReader.py
+
 _Estimated runtime is under 5 minutes_
 
 ## Running the Frontend
