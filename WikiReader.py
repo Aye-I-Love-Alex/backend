@@ -103,10 +103,10 @@ with open("simplewiki-latest-pages-articles-multistream.xml", encoding="utf-8") 
 
         num_pages += 1
 
-    if num_pages == 100:
-        es.bulk(index="wikipedia_pages", operations=pages_to_store, request_timeout=120)
-        num_pages = 0
-        pages_to_store = []
+        if num_pages == 100:
+            es.bulk(index="wikipedia_pages", operations=finished_pages, request_timeout=120)
+            num_pages = 0
+            finished_pages = []
 
     # Used to track program execution time
     end_time = time.time()
