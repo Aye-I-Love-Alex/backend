@@ -59,43 +59,33 @@
       <p class="lead">
         Enter two words to find the conceptual connection between them.
       </p>
+        <form action="/" method="post">
+            <label for="text">First Word<span class="text-muted"></span></label>
+            <input type="text" class="form-control" name="firstword" placeholder="First Word">
+            <label for="text" class="mt-3">Second Word<span class="text-muted"></span></label>
+            <input type="text" class="form-control" name="secondword" placeholder="Second Word">
+            <label for="text" class="mt-3">Maximum Iterations<span class="text-muted"></span></label>
+            <input type="text" class="form-control" name="maximumiterations" placeholder="Maximum Number of Algorithm Iterations">
+            <label for="intensityRange" class="form-label mt-3 mr-3">Connection Intensity</label>
+            <input type="range" class="form-range" id="intensityRange" name="intensity">
+            <input type="submit" class="btn btn-primary btn-lg btn-block mt-3" value="Submit">
+        </form>
+        
+        {% if connection != "" %}
+            <iframe style="height: 525px; width: 525px; display: block; margin: auto;" src="{{ url_for('show_graph') }}"></iframe>
+        {% endif %}
 
-      <form action="/" method="post">
-        <label for="text">First Word<span class="text-muted"></span></label>
-        <input
-          type="text"
-          class="form-control"
-          name="firstword"
-          placeholder="First Word"
-        />
-        <label for="text" class="mt-3"
-          >Second Word<span class="text-muted"></span
-        ></label>
-        <input
-          type="text"
-          class="form-control"
-          name="secondword"
-          placeholder="Second Word"
-        />
-        <input
-          type="submit"
-          class="btn btn-primary btn-lg btn-block mt-3"
-          value="Submit"
-        />
-      </form>
-      {% if connection != "" %}
-      <iframe
-        style="height: 525px; width: 525px; display: block; margin: auto"
-        src="{{ url_for('show_graph') }}"
-      ></iframe>
-      {% endif %}
-    </main>
+        {% for message in messages %}
+            <p style="color:red">{{ message }}</p>
+        {% endfor %}
 
-    <footer class="footer">
-      <div class="container">
-        <span class="text-muted">© ILoveAlex2022</span>
-      </div>
-    </footer>
+        <footer class="footer">
+          <div class="container">
+            <span class="text-muted">© ILoveAlex2022</span>
+          </div>
+        </footer>
+
+      </main>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

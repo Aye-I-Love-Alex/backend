@@ -6,6 +6,9 @@ __pycache__/
 # C extensions
 *.so
 
+# XML files
+*.xml
+
 # VSCode Files
 .vscode/
 
@@ -134,8 +137,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Exclude wikipedia data dump
-simplewiki-latest-pages-articles-multistream.xml
 
 # Exclude MacOS index files
 .DS-Store
