@@ -5,75 +5,57 @@ from pyvis.network import Network
 
 app = Flask(__name__, static_folder="graph")
 GRAPH_LOCATION = "./graph/graph.html"
+PATH_LOCATION = "./graph/paths.html"
+
 
 @app.route("/", methods=["POST", "GET"])
-def index():
-    net = ""
+def home():
+    return render_template("index.html")
+
+
+@app.route("/bengals.html", methods=["POST", "GET"])
+def bengals():
     messages = []
+    candidate_paths = []
     if request.method == "POST":
-        first = request.form.get("firstword")
-        second = request.form.get("secondword")
-        max_iterations = request.form.get("maximumiterations")
-        intense = request.form.get("intensity")
-        if len(first) > 0 and len(second) > 0 and first.lower() != second.lower():
-            connection = Connection(first, second, intense)
+        head_con = 'cincinnati bengals'
+        candidate_paths = find_paths(head_con, request.form)
+
+    return render_template("bengals.html", connections=candidate_paths, messages=messages)
+
+@app.route("/browns.html", methods=["POST", "GET"])
+def browns():
+    messages = []
+    candidate_paths = []
+    if request.method == "POST":
+        head_con = 'cleveland browns'
+        candidate_paths = find_paths(head_con, request.form)
+
+    return render_template("browns.html", connections=candidate_paths, messages=messages)
+
+@app.route("/colts.html", methods=["POST", "GET"])
+def colts():
+    messages = []
+    candidate_paths = []
+    if request.method == "POST":
+        head_con = 'indianapolis colts'
+        candidate_paths = find_paths(head_con, request.form)
+
+    return render_template("colts.html", connections=candidate_paths, messages=messages)
+
+# Method to find the paths for the connections
+def find_paths(first_connection, form):
+    paths = []
+    candidates = form.get("candidates").split(",")
+    max_iterations = form.get("maximumiterations")
+    intense = form.get("intensity")
+    for candidate in candidates:
+        if len(candidate) > 0 and first_connection.lower() != candidate.lower():
+            connection = Connection(first_connection, candidate, intense)
             path, messages = connection.find_all_connections(max_iter = max_iterations)
             if len(path) > 0:
-                graph = nx.Graph()
-                nodes = []
-                # Iterating through each path that was found
-                for path_index in range(len(path)):
-                    current_path = path[path_index]
-                    parent = ""
-
-                    # Iterating through each element in the current path
-                    for element_index in range(len(current_path)):
-                        # Ensuring that the current title has not already been added as a node
-                        if current_path[element_index] not in nodes:
-                            # Checking current index because that changes how the node's colors work
-                            if (
-                                element_index == 0
-                                or element_index == len(current_path) - 1
-                            ):
-                                graph.add_node(
-                                    current_path[element_index], color="red")
-                            else:
-                                graph.add_node(current_path[element_index])
-
-                            # Ensuring that we don't add the node twice
-                            nodes.append(current_path[element_index])
-
-                        # Checking if an edge should be added or not. Assigning parent accordingly
-                        if element_index == 0:
-                            parent = current_path[element_index]
-                        else:
-                            # Checking current index because that changes how the edge's colors work
-                            # Adding edges to graph
-                            if element_index == len(current_path) - 1:
-                                graph.add_edge(
-                                    parent,
-                                    current_path[element_index],
-                                    weight=1,
-                                    color="red",
-                                )
-                            else:
-                                graph.add_edge(
-                                    parent, current_path[element_index], weight=1
-                                )
-                            parent = current_path[element_index]
-
-                net = Network()
-                net.from_nx(graph)
-                net.html = net.generate_html()
-                with open(GRAPH_LOCATION, "w+") as out:
-                    out.write(net.html)
-        elif first.lower() == second.lower() and len(first) + len(second) > 0:
-            messages.append("Please enter two different terms.")
-        elif not (len(first) == 0 and len(second) == 0):
-            messages.append("Please enter two terms.")
-
-    return render_template("index.html", connection=net, messages=messages)
-
+                paths.append(', '.join(stop for stop in path))
+    return paths
 
 @app.route("/graph/graph.html")
 def show_graph():

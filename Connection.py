@@ -113,12 +113,15 @@ class Connection(ConnectionInterface):
         current_iter = 0
 
         valid_max_iter = 1000 if not max_iter.isnumeric() else int(max_iter)
-
+        
+        min_path = []
+        min_len = -1
+        min_conn_not_found = True
         # Only continuing while there are still links in both topics and the maximum number of iterations
         # has not been reached yet
         while (
             len(first_topic_links) != 0 or len(second_topic_links) != 0
-        ) and current_iter < valid_max_iter:
+        ) and current_iter < valid_max_iter and min_conn_not_found:
 
             # pop off queue of links to explore
             if len(first_topic_links) != 0:
@@ -127,10 +130,17 @@ class Connection(ConnectionInterface):
                 # check if the node has been seen by the other BFS direction (second link)
                 if current_link in second_parents:
                     # if so, generate a path and add to the list of paths for graph generation
-                    paths.append(
-                        self.generate_path(
+                    curr_path = self.generate_path(
                             first_parents, second_parents, current_link)
-                    )
+                    paths.append(curr_path)
+                    if len(curr_path) == 2:
+                        min_len = len(curr_path)
+                        min_path = curr_path
+                        min_conn_not_found = False
+                    elif len(curr_path) < min_len or min_len == -1:
+                        min_len = len(curr_path)
+                        min_path = curr_path
+
                 else:
                     # if not, expand and add new links if we have not already seen them from this direction
                     result = self.es.search(
@@ -158,10 +168,17 @@ class Connection(ConnectionInterface):
                 # check if the node has been seen by the other BFS direction (first link)
                 if current_link in first_parents:
                     # if so, generate a path and add to the list of paths for graph generation
-                    paths.append(
-                        self.generate_path(
+                    curr_path = self.generate_path(
                             first_parents, second_parents, current_link)
-                    )
+                    paths.append(curr_path)
+                    if len(curr_path) == 2:
+                        min_len = len(curr_path)
+                        min_path = curr_path
+                        min_conn_not_found = False
+                    elif len(curr_path) < min_len or min_len == -1:
+                        min_len = len(curr_path)
+                        min_path = curr_path
+
                 else:
                     # if not, expand and add new links if we have not already seen them from this direction
                     result = self.es.search(
@@ -195,4 +212,4 @@ class Connection(ConnectionInterface):
             )
 
         # Returning array of array of paths
-        return paths, self.error_messages
+        return min_path, self.error_messages
