@@ -33,15 +33,15 @@ def browns():
 
     return render_template("browns.html", connections=candidate_paths, messages=messages)
 
-@app.route("/colts.html", methods=["POST", "GET"])
-def colts():
+@app.route("/dolphins.html", methods=["POST", "GET"])
+def raiders():
     messages = []
     candidate_paths = []
     if request.method == "POST":
-        head_con = 'indianapolis colts'
+        head_con = 'miami dolphins'
         candidate_paths = find_paths(head_con, request.form)
 
-    return render_template("colts.html", connections=candidate_paths, messages=messages)
+    return render_template("dolphins.html", connections=candidate_paths, messages=messages)
 
 # Method to find the paths for the connections
 def find_paths(first_connection, form):
