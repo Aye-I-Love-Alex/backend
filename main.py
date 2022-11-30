@@ -18,30 +18,39 @@ def bengals():
     messages = []
     candidate_paths = []
     if request.method == "POST":
-        head_con = 'cincinnati bengals'
+        head_con = "cincinnati bengals"
         candidate_paths = find_paths(head_con, request.form)
 
-    return render_template("bengals.html", connections=candidate_paths, messages=messages)
+    return render_template(
+        "bengals.html", connections=candidate_paths, messages=messages
+    )
+
 
 @app.route("/browns.html", methods=["POST", "GET"])
 def browns():
     messages = []
     candidate_paths = []
     if request.method == "POST":
-        head_con = 'cleveland browns'
+        head_con = "cleveland browns"
         candidate_paths = find_paths(head_con, request.form)
 
-    return render_template("browns.html", connections=candidate_paths, messages=messages)
+    return render_template(
+        "browns.html", connections=candidate_paths, messages=messages
+    )
+
 
 @app.route("/dolphins.html", methods=["POST", "GET"])
 def raiders():
     messages = []
     candidate_paths = []
     if request.method == "POST":
-        head_con = 'miami dolphins'
+        head_con = "miami dolphins"
         candidate_paths = find_paths(head_con, request.form)
 
-    return render_template("dolphins.html", connections=candidate_paths, messages=messages)
+    return render_template(
+        "dolphins.html", connections=candidate_paths, messages=messages
+    )
+
 
 # Method to find the paths for the connections
 def find_paths(first_connection, form):
@@ -52,10 +61,11 @@ def find_paths(first_connection, form):
     for candidate in candidates:
         if len(candidate) > 0 and first_connection.lower() != candidate.lower():
             connection = Connection(first_connection, candidate, intense)
-            path, messages = connection.find_all_connections(max_iter = max_iterations)
+            path, messages = connection.find_all_connections(max_iter=max_iterations)
             if len(path) > 0:
-                paths.append(', '.join(stop for stop in path))
+                paths.append(", ".join(stop for stop in path))
     return paths
+
 
 @app.route("/graph/graph.html")
 def show_graph():
