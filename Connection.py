@@ -117,12 +117,6 @@ class Connection(ConnectionInterface):
         min_path = []
         min_len = -1
         min_conn_not_found = True
-        print(self.second_topic)
-        print()
-        print()
-        print(self.second_links)
-        print()
-        print()
         
         # Only continuing while there are still links in both topics and the maximum number of iterations
         # has not been reached yet
